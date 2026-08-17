@@ -1,4 +1,5 @@
 <Solution>
+  <Project Path="Library.API/Library.API.csproj" Id="4d3ed606-d490-4658-9e8e-6cfeb8e5ab86" />
   <Project Path="Library.Business/Library.Business.csproj" Id="e531fa5f-3561-4e64-8d76-f207cbe88257" />
   <Project Path="Library.DataAccess/Library.DataAccess.csproj" Id="1501dfcc-0526-4de1-9cbd-a488422f4b35" />
   <Project Path="Library.Entity/Library.Entity.csproj" />
