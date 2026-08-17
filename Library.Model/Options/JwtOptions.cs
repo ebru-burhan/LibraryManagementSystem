@@ -2,7 +2,7 @@
 
 public class JwtOptions
 {
-    public const string SectionName = "JwtSettings";
+    public const string SectionName = "JwtSettings"; //appsettin de bu ismi yazıcaz burayı doldurcak
 
     public string Key { get; set; } = null!;
     public string Issuer { get; set; } = null!;

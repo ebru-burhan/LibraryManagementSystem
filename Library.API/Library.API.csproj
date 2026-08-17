@@ -20,4 +20,8 @@
     <ProjectReference Include="..\Library.Model\Library.Model.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Controllers\" />
+  </ItemGroup>
+
 </Project>

@@ -1,4 +1,10 @@
+using Library.Business.Extensions;
+
 var builder = WebApplication.CreateBuilder(args);
+
+// Katman servislerinin kaydı
+builder.Services.AddBusinessServices(builder.Configuration);
+
 
 // Add services to the container.
 
@@ -16,7 +22,10 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.UseAuthorization();
+// 1.Kimlik Kartını Oku
+app.UseAuthentication();
+// 2. Yetkiyi Kontrol Et
+app.UseAuthorization();  
 
 app.MapControllers();
 
