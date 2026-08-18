@@ -1,8 +1,7 @@
 ﻿namespace Library.Entity.Abstract;
 
-public abstract class BaseEntity : IEntity, ISoftDelete
+public abstract class BaseEntity : IEntity
 {
     public int Id { get; set; }
-    public bool IsDeleted { get; set; } = false;
-    public DateTime? DeletedAt { get; set; }
+
 }

@@ -11,5 +11,6 @@ public class User : AuditableEntity
     public bool IsActive { get; set; } = true;
 
     //eklenecek var notification
+    public ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
 
 }
