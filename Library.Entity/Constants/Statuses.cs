@@ -26,4 +26,11 @@ public static class Statuses
         public const string Cancelled = "CANCELLED";
         public const string Expired = "EXPIRED";
     }
+
+    public static class Reading
+    {
+        public const string CurrentlyReading = "CURRENTLY_READING";
+        public const string Completed = "COMPLETED";
+        public const string Dropped = "DROPPED";
+    }
 }

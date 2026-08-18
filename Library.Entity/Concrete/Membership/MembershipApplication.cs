@@ -1,7 +1,7 @@
 ﻿using Library.Entity.Abstract;
 using Library.Entity.Concrete.Lookups;
 
-namespace Library.Entity.Concrete;
+namespace Library.Entity.Concrete.Membership;
 
 public class MembershipApplication : AuditableEntity
 {

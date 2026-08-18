@@ -1,4 +1,4 @@
-﻿using Library.Entity.Concrete;
+﻿using Library.Entity.Concrete.Auth;
 using Library.Model.Dtos.Auth;
 
 namespace Library.Business.Security.Jwt;

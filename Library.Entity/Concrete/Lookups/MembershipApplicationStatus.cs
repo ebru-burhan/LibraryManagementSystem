@@ -1,4 +1,5 @@
 ﻿using Library.Entity.Abstract;
+using Library.Entity.Concrete.Membership;
 
 namespace Library.Entity.Concrete.Lookups;
 

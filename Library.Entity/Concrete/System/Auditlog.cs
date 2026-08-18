@@ -1,11 +1,9 @@
-﻿
-using Library.Entity.Abstract;
-
+﻿using Library.Entity.Abstract;
 using Library.Entity.Constants;
 
 
 
-namespace Library.Entity.Concrete;
+namespace Library.Entity.Concrete.System;
 
 public class AuditLog : CreationAuditedEntity
 {

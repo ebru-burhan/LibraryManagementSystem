@@ -1,6 +1,7 @@
 ﻿using Library.Entity.Abstract;
+using Library.Entity.Concrete.Membership;
 
-namespace Library.Entity.Concrete;
+namespace Library.Entity.Concrete.Auth;
 
 public class User : AuditableEntity
 {
@@ -21,5 +22,5 @@ public class User : AuditableEntity
 
     // İlişkiler
     public ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
-    //public Member? Member { get; set; } // Eğer kütüphane üyesiyse burası dolu olacak
+    public Member? Member { get; set; } // kütüphane üyesiyse dolu olur burası
 }

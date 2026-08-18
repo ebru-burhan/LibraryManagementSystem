@@ -1,7 +1,7 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using Library.Entity.Concrete;
+using Library.Entity.Concrete.Auth;
 using Library.Model.Dtos.Auth;
 using Library.Model.Options;
 using Microsoft.Extensions.Options;
