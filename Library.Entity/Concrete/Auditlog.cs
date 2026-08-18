@@ -1,10 +1,14 @@
-﻿namespace Library.Entity.Concrete;
-
+﻿
 using Library.Entity.Abstract;
+
+using Library.Entity.Constants;
+
+
+
+namespace Library.Entity.Concrete;
 
 public class AuditLog : CreationAuditedEntity
 {
-    // TODO: daha action type tablo olur heralde string olasın da sonra bak
     public string ActionType { get; set; } = null!; // Create, Update, Delete, Login 
     public string TableName { get; set; } = null!;  // İşlemin yapıldığı tablo (Örn: "Books", "Users")
 

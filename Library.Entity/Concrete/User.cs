@@ -4,13 +4,22 @@ namespace Library.Entity.Concrete;
 
 public class User : AuditableEntity
 {
+    // Hesap Bilgileri
     public string Email { get; set; } = null!;
     public byte[] PasswordHash { get; set; } = null!;
     public byte[] PasswordSalt { get; set; } = null!;
+
+    // Çekirdek Kişisel ve İletişim Bilgileri
+    public string FirstName { get; set; } = null!;
+    public string LastName { get; set; } = null!;
+    public string IdentityNumber { get; set; } = null!;
+    public DateTime DateOfBirth { get; set; }
     public string? PhoneNumber { get; set; }
+    public string? Address { get; set; }
+
     public bool IsActive { get; set; } = true;
 
-    //eklenecek var notification
+    // İlişkiler
     public ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
-
+    //public Member? Member { get; set; } // Eğer kütüphane üyesiyse burası dolu olacak
 }
