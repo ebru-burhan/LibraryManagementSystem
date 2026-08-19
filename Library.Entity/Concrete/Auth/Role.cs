@@ -2,7 +2,7 @@
 
 namespace Library.Entity.Concrete.Auth;
 
-public class Role : BaseEntity
+public class Role : AuditableEntity
 {
     public string Name { get; set; } = null!;
     public string? Description { get; set; }
