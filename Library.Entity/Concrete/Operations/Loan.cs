@@ -15,7 +15,7 @@ public class Loan : AuditableEntity
     public BookCopy BookCopy { get; set; } = null!;
 
     public DateTime LoanDate { get; set; }
-    public DateTime DueDate { get; set; } // Beklenen teslim tarihi[cite: 1]
+    public DateTime DueDate { get; set; } // Beklenen teslim tarihi
     public DateTime? ReturnDate { get; set; } // Gerçekleşen iade tarihi
 
     public int StatusId { get; set; }

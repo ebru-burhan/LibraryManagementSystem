@@ -15,8 +15,7 @@ public class Reservation : AuditableEntity
     public Book Book { get; set; } = null!; // Belli bir kopyaya değil, kitaba rezervasyon yapılır
 
     public DateTime ReservationDate { get; set; }
-    public int QueueNumber { get; set; } // Sıra numarası[cite: 1]
-
+    public int QueueNumber { get; set; } // Sıra numarası
     public int StatusId { get; set; }
     public ReservationStatus Status { get; set; } = null!;
 }
