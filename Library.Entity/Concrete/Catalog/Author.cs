@@ -1,5 +1,7 @@
 ﻿using Library.Entity.Abstract;
 
+namespace Library.Entity.Concrete.Catalog;
+
 public class Author : AuditableEntity
 {
     public string FirstName { get; set; } = null!;

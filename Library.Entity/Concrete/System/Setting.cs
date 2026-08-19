@@ -2,10 +2,10 @@
 
 public class Setting : AuditableEntity
 {
-    // Örn: "DailyPenaltyFee", "MaxLoanDays", "MaxExtensionCount"
+    //"DailyPenaltyFee", "MaxLoanDays", "MaxExtensionCount"
     public string Key { get; set; } = null!;
 
-    // Örn: "15.00", "15", "2" (Her şeyi string tutup kullanırken dönüştüreceğiz)
+    // "15.00", "15", "2" (Her şeyi string tutup kullanırken dönüştüreceğiz)
     public string Value { get; set; } = null!;
 
     public string? Description { get; set; }

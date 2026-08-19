@@ -1,6 +1,7 @@
 ﻿using Library.Entity.Abstract;
 using Library.Entity.Concrete.Membership;
 using Library.Entity.Constants;
+using Library.Entity.Concrete.Catalog;
 
 namespace Library.Entity.Concrete.Interactions;
 

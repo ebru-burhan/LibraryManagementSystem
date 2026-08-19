@@ -35,4 +35,12 @@ public static class Statuses
         public const string Completed = "COMPLETED";
         public const string Dropped = "DROPPED";
     }
+
+    public static class BookCopy
+    {
+        public const string Available = "AVAILABLE"; // Rafta
+        public const string OnLoan = "ON_LOAN";      // Ödünç Verildi
+        public const string InRepair = "IN_REPAIR";  // Tamirde??
+        public const string Lost = "LOST";           // Kayıp
+    }
 }

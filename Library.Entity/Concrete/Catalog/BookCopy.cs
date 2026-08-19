@@ -1,4 +1,7 @@
 ﻿using Library.Entity.Abstract;
+using Library.Entity.Concrete.Lookups;
+
+namespace Library.Entity.Concrete.Catalog;
 
 public class BookCopy : AuditableEntity
 {
@@ -9,6 +12,8 @@ public class BookCopy : AuditableEntity
     public string ShelfLocation { get; set; } = null!; // Raf 
 
     // Kitabın anlık durumu (Rafta, Ödünçte, Tamirde, Kayıp)
+    //foreign key
     public int StatusId { get; set; }
-    // public LookupStatus Status { get; set; } (Lookup tablosu ile bağlanacak) /// bu kısmı anlamadım
+    // EF, ilişkileri anlaması için gereken Navigation Property
+    public BookStatus Status { get; set; } //(Lookup tablosunda
 }

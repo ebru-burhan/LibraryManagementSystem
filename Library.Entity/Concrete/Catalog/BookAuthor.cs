@@ -1,4 +1,5 @@
 ﻿using Library.Entity.Abstract;
+namespace Library.Entity.Concrete.Catalog;
 
 public class BookAuthor : BaseEntity
 {

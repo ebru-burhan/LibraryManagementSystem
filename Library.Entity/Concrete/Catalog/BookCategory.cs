@@ -1,5 +1,7 @@
 ﻿using Library.Entity.Abstract;
 
+namespace Library.Entity.Concrete.Catalog;
+
 public class BookCategory : BaseEntity
 {
     public int BookId { get; set; }
