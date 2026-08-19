@@ -2,6 +2,8 @@
 
 public static class Statuses
 {
+    //Statuses.Loan.Overdue şeklinde çağırıcaz nested class sayesinde kalabalık olmadı solution Expl da
+    //switch case derlemede çalışır ve const ile derlemede en azından yazım hatasından hata almayı engelledik.
     public static class Loan
     {
         public const string Borrowed = "BORROWED";

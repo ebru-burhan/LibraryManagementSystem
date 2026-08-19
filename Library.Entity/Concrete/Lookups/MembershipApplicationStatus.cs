@@ -1,5 +1,4 @@
 ﻿using Library.Entity.Abstract;
-using Library.Entity.Concrete.Membership;
 
 namespace Library.Entity.Concrete.Lookups;
 
@@ -11,5 +10,6 @@ public class MembershipApplicationStatus : LookupEntity
 
 
     // Bir başvuru durumuna ait birden fazla başvuru olabilir
-    public ICollection<MembershipApplication> Applications { get; set; } = new List<MembershipApplication>();
+    // TODO: bunu sonra araştır. devasa veri çekimi olurmuş
+    //public ICollection<MembershipApplication> Applications { get; set; } = new List<MembershipApplication>();
 }
