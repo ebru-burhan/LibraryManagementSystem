@@ -17,7 +17,7 @@ public class Penalty : AuditableEntity
     //eğer kayıpkitap ise lostbook ta bookValue
     public decimal Amount { get; set; } // Ceza tutarı  
     public bool IsPaid { get; set; } = false; // Ödendi mi?
-    public DateTime? PaidDate { get; set; } = DateTime.UtcNow;
+    public DateTime? PaidDate { get; set; }
 
 
     public int PenaltyTypeId { get; set; }

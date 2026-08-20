@@ -6,13 +6,13 @@ using Library.Entity.Concrete.Lookups;
 using Library.Entity.Concrete.Membership;
 using Library.Entity.Concrete.Operations;
 using Library.Entity.Concrete.System;
+using Library.Entity.Abstract;
 using System.Reflection;
 
 namespace Library.DataAccess.Contexts;
 
-//AppDbContext classı, tüm Entity sınıflarını EF Core'a " Hanım hanım bunlar benim veritabanı tablolarım" diye tanıtacak
-//ve yazacağımız ayar (Configuration) dosyalarını otomatik bulmasını sağlayacak
-
+// AppDbContext classı, tüm Entity sınıflarını EF Core'a " Hanım hanım bunlar benim veritabanı tablolarım" diye tanıtacak
+// ve yazacağımız ayar (Configuration) dosyalarını otomatik bulmasını sağlayacak
 public class AppDbContext : DbContext
 {
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
@@ -63,7 +63,32 @@ public class AppDbContext : DbContext
     {
         base.OnModelCreating(modelBuilder);
 
-        //Configurations klasörüne yazacağımız tüm ayar dosyalarını otomatik bul ve uygula!
+        // Configurations klasörüne yazacağımız tüm ayar dosyalarını otomatik bul ve uygula!
         modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
+    }
+
+    //TARİHLERİ OTOMATİK YÖNETME (Zaman/UTC Sihri)
+    public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    {
+        
+        var creationEntries = ChangeTracker.Entries<CreationAuditedEntity>();
+        foreach (var entry in creationEntries)
+        {
+            if (entry.State == EntityState.Added)
+            {
+                entry.Entity.CreatedAt = DateTime.UtcNow;
+            }
+        }
+
+        var auditableEntries = ChangeTracker.Entries<AuditableEntity>();
+        foreach (var entry in auditableEntries)
+        {
+            if (entry.State == EntityState.Modified)
+            {
+                entry.Entity.UpdatedAt = DateTime.UtcNow;
+            }
+        }
+
+        return base.SaveChangesAsync(cancellationToken);
     }
 }

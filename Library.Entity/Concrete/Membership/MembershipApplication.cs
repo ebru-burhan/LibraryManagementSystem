@@ -13,7 +13,7 @@ public class MembershipApplication : AuditableEntity
     public string FirstName { get; init; } = null!;
     public string LastName { get; init; } = null!;
     public string IdentityNumber { get; init; } = null!;
-    public DateTime DateOfBirth { get; init; }
+    public DateOnly DateOfBirth { get; init; }
 
     // İletişim Bilgileri
     public string PhoneNumber { get; init; } = null!;
