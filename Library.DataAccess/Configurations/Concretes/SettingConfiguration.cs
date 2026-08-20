@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Library.Entity.Concrete.System;
 using Library.DataAccess.Configurations.Abstracts;
+using Library.Entity.Concrete.System;
 
 namespace Library.DataAccess.Configurations.Concretes;
 public class SettingConfiguration : AuditableConfiguration<Setting>

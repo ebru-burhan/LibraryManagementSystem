@@ -1,9 +1,7 @@
-﻿using Library.DataAccess.Configurations.Abstracts;
-using Library.Entity.Abstract;
-using Microsoft.EntityFrameworkCore;
+﻿using Library.Entity.Abstract;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Library.DataAccess.Configurations;
+namespace Library.DataAccess.Configurations.Abstracts;
 
 // T, CreationAuditedEntity kısıtlamasına sahip ve BaseConfiguration'dan miras alıyor!
 public abstract class CreationAuditedConfiguration<T> : BaseConfiguration<T> where T : CreationAuditedEntity

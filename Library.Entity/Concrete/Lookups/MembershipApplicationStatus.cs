@@ -11,5 +11,7 @@ public class MembershipApplicationStatus : LookupEntity
 
     // Bir başvuru durumuna ait birden fazla başvuru olabilir
     // TODO: bunu sonra araştır. devasa veri çekimi olurmuş
+    // .WithMany() ile configurasyonlarda yaptık tek yönlü. listeye gerek yok artık
     //public ICollection<MembershipApplication> Applications { get; set; } = new List<MembershipApplication>();
+
 }

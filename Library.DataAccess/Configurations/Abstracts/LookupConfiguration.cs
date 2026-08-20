@@ -1,19 +1,15 @@
-﻿using Library.DataAccess.Configurations.Abstracts;
-using Library.Entity.Abstract;
-using Library.Entity.Concrete.Lookups;
-using Microsoft.EntityFrameworkCore;
+﻿using Library.Entity.Abstract;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Library.DataAccess.Configurations; // Klasör yapına göre namespace'i güncelleyebilirsin
+namespace Library.DataAccess.Configurations.Abstracts;
 
-public abstract class LookupConfiguration<T> : BaseConfiguration<T> where T : LookupEntity
+public abstract class LookupConfiguration<T> : AuditableConfiguration<T> where T : LookupEntity
 {
     public override void Configure(EntityTypeBuilder<T> builder)
     {
-        // 1. Önce üst sınıfın (BaseConfiguration) Id kuralını çalıştır
+        
         base.Configure(builder);
 
-        // 2. Tüm lookup tablolarında ortak olan standart kurallar
         builder.Property(x => x.Name)
             .IsRequired()
             .HasMaxLength(50);

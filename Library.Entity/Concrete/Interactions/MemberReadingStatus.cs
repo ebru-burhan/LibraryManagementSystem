@@ -6,8 +6,7 @@ using Library.Entity.Concrete.Catalog;
 namespace Library.Entity.Concrete.Interactions;
 
 
-// TODO: SONRA to read mantığı için aslında creationAud classından inherite edebiliriz
-public class MemberReadingStatus : BaseEntity
+public class MemberReadingStatus : AuditableEntity
 {
     public int MemberId { get; set; }
     public Member Member { get; set; } = null!;
@@ -21,8 +20,9 @@ public class MemberReadingStatus : BaseEntity
     //okumaya başlama saati de koysam mı ne kadar sürede okudu falan hatta bassın süre tutsun durdursun
     //tekrar okuyacağında bassın tekrar devam etsin okuma hızı gelişimini bile hesaplarız görürüz // TODO:SONRA stajdan sonra başka projede devam etmimari gelişimine
     // Butona ilk basıldığında DateTime.UtcNow atanır başlama ve bitiş süresi görürüz. bi nebze member hakkında bilgi verir.
-    public DateTime? StartedAt { get; set; }
-    // Sadece tamamlandığında dolar okudum dediğinde butona basınca o saat gelmeli
-    public DateTime? CompletedAt { get; set; }
+    public DateTime? StartedAt { get; set; } = DateTime.UtcNow;
+    // Sadece tamamlandığında dolar okudum dediğinde butona basınca o saat gelmeli   
+    public DateTime? CompletedAt { get; set; } = DateTime.UtcNow; 
+    // UI da Kullanıcının cihazındaki tarayıcı veya mobil uygulama, bu UTC saatini alıp kendi bulunduğu yerel saate (ToLocalTime()) çevirerek ekrana basar.
 
 }

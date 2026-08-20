@@ -5,7 +5,7 @@ using Library.Entity.Concrete.Catalog;
 
 namespace Library.Entity.Concrete.Interactions;
 
-    public class BookReview : CreationAuditedEntity
+    public class BookReview : AuditableEntity
     {
     public int MemberId { get; set; }
     public Member Member { get; set; } = null!;

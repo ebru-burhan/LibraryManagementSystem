@@ -1,6 +1,8 @@
 ﻿using Library.Entity.Abstract;
 using Library.Entity.Concrete.Auth;
 
+namespace Library.Entity.Concrete.System;
+
 public class Notification : CreationAuditedEntity
 {
     public int UserId { get; set; }

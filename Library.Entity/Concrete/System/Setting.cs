@@ -1,5 +1,7 @@
 ﻿using Library.Entity.Abstract;
 
+namespace Library.Entity.Concrete.System;
+
 public class Setting : AuditableEntity
 {
     //"DailyPenaltyFee", "MaxLoanDays", "MaxExtensionCount"
