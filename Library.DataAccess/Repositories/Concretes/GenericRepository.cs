@@ -55,7 +55,8 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class, IEnti
         {
             throw new InvalidOperationException("Log ve denetim kayıtları (CreationAuditedEntity) güncellenemez!");
         }
-        _dbSet.Update(entity);
+        _dbSet.Update(entity); // Dışarıdan gelen her nesneyi direkt update etmeye çalışır riskk burda!!! 
+        //service de getbyıd ile çek öyle güncelle kaydet. // TODO: başka yol bak var mı
     }
 
     public void Delete(T entity)
