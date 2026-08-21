@@ -1,8 +1,10 @@
-﻿using Library.DataAccess.Contexts;
-using Library.DataAccess.Repositories.Abstracts;
-using Library.DataAccess.Repositories.Concretes;
+﻿using Library.Business.Abstracts;
+using Library.Business.Concretes;
 using Library.Business.Security.Hashing;
 using Library.Business.Security.Jwt;
+using Library.DataAccess.Contexts;
+using Library.DataAccess.Repositories.Abstracts;
+using Library.DataAccess.Repositories.Concretes;
 using Library.Model.Options;
 using Microsoft.EntityFrameworkCore; // UseSqlServer için
 using Microsoft.Extensions.Configuration;
@@ -26,6 +28,10 @@ public static class ServiceCollectionExtensions
 
         services.AddScoped<IHashingHelper, HmacSha512HashingHelper>();
         services.AddScoped<ITokenHelper, JwtTokenHelper>();
+
+        // (Business Services)
+        // Dışarıdan IAuthService istendiğinde ona AuthManager ver (Dependency Inversion)
+        services.AddScoped<IAuthService, AuthManager>();
 
         return services;
     }
