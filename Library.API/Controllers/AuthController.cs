@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Library.API.Controllers;
 
+
 [Route("api/[controller]")]
 [ApiController]
 public class AuthController : ControllerBase
@@ -15,6 +16,7 @@ public class AuthController : ControllerBase
     {
         _authService = authService;
     }
+
 
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] RegisterDto registerDto)
@@ -44,4 +46,5 @@ public class AuthController : ControllerBase
 
         return BadRequest(result);
     }
+ 
 }

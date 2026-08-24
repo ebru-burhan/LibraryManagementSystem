@@ -6,9 +6,12 @@ using Library.DataAccess.Contexts;
 using Library.DataAccess.Repositories.Abstracts;
 using Library.DataAccess.Repositories.Concretes;
 using Library.Model.Options;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore; // UseSqlServer için
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace Library.Business.Extensions;
 
@@ -23,15 +26,38 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 
-        //JWT
+
+        // (Business Services)
+        // Dışarıdan IAuthService istendiğinde ona AuthManager ver (Dependency Inversion)
+        services.AddScoped<IAuthService, AuthManager>();
+        services.AddScoped<IRoleService, RoleManager>();
+
+        //JWT - Güvenlik Araçları ve Ayarları
         services.Configure<JwtOptions>(configuration.GetRequiredSection(JwtOptions.SectionName));
 
         services.AddScoped<IHashingHelper, HmacSha512HashingHelper>();
         services.AddScoped<ITokenHelper, JwtTokenHelper>();
 
-        // (Business Services)
-        // Dışarıdan IAuthService istendiğinde ona AuthManager ver (Dependency Inversion)
-        services.AddScoped<IAuthService, AuthManager>();
+        //Sistem Kimlik Doğrulama Şeması (Authentication)
+        var jwtOptions = configuration.GetSection(JwtOptions.SectionName).Get<JwtOptions>() 
+            ?? throw new InvalidOperationException("JWT settings are missing in configuration. (null)");// TODO: null gelebilir diyordu
+        var key = Encoding.UTF8.GetBytes(jwtOptions.Key);
+
+        services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            .AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = jwtOptions.Issuer,
+                    ValidAudience = jwtOptions.Audience,
+                    IssuerSigningKey = new SymmetricSecurityKey(key)
+                };
+            });
+
 
         return services;
     }

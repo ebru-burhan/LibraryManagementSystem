@@ -77,8 +77,20 @@ public class AuthManager : IAuthService
             return new ErrorDataResult<AccessToken>("Hatalı şifre.");
         }
 
+
+       //tokensız giriş de unathurized alındı şimdi rolleri ekleme tokena tek seferde gelsin ne gelecekse veritabanından yoksa git gel hep zor.
+        var userRoles = await _unitOfWork.GetRepository<UserRole>()
+            .FindAsync(ur => ur.UserId == user.Id, tracking: false);
+
+        var roleIds = userRoles.Select(ur => ur.RoleId).ToList();
+
+        var roles = await _unitOfWork.GetRepository<Role>()
+            .FindAsync(r => roleIds.Contains(r.Id), tracking: false);
+
+        var roleNames = roles.Select(r => r.Name).ToList();
+
         // 3. Token üret ve dön
-        var accessToken = _tokenHelper.CreateToken(user, new List<string>());
+        var accessToken = _tokenHelper.CreateToken(user, roleNames);
         return new SuccessDataResult<AccessToken>(accessToken, "Giriş başarılı.");
     }
 

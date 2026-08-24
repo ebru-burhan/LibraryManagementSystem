@@ -1,28 +1,35 @@
 using Library.Business.Extensions;
+using Microsoft.OpenApi;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Katman servislerinin kaydı
 builder.Services.AddBusinessServices(builder.Configuration);
 
-// Controller'ları (Garsonları) sisteme ekle
+// Controller'ları sisteme ekle
 builder.Services.AddControllers();
 
-// .NET'in yeni nesil OpenAPI desteği (Senin kodunda gelen)
-builder.Services.AddOpenApi();
+// SWAGGER SERVİSLERİ VE JWT KİLİT MEKANİZMASI // nalet swagger curl ile terminalde hallettim // TODO: bi ara swagger ile ilgili şeyleri sil yok et.
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Library API", Version = "v1" });
 
-// 1. SWAGGER SERVİSLERİNİ EKLİYORUZ (Yeşil görsel arayüz için)
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.Http,
+        Scheme = "Bearer"
+    });
+
+});
 
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi(); // Arka plandaki API haritası
-
-    // İŞTE EKSİK OLAN YER BURASIYDI! (Görsel arayüzü ayağa kaldırıyoruz)
     app.UseSwagger();
     app.UseSwaggerUI();
 }
