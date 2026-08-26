@@ -1,0 +1,79 @@
+.login-page {
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 460px;
+  background-color: var(--card-bg, #ffffff);
+  border-radius: 20px;
+  padding: 40px;
+  box-shadow: 0 20px 50px rgba(124, 45, 18, 0.15);
+}
+
+.header { text-align: center; margin-bottom: 30px; }
+.logo { font-size: 38px; margin-bottom: 15px; }
+.title { font-size: 27px; font-weight: bold; margin: 0; color: var(--text-main, #292524); }
+.subtitle { color: var(--text-muted, #78716c); font-size: 14px; margin-top: 8px; }
+
+.input-group { margin-bottom: 17px; }
+.label { display: block; margin-bottom: 7px; font-size: 14px; font-weight: 600; color: var(--text-main, #292524); }
+.input-field {
+  width: 100%;
+  padding: 13px 14px;
+  border: 1px solid var(--border-color, #d6d3d1);
+  border-radius: 10px;
+  font-size: 15px;
+  box-sizing: border-box;
+  background-color: var(--input-bg, #ffffff);
+  color: var(--text-main, #292524);
+}
+
+.submit-btn {
+  width: 100%;
+  padding: 14px;
+  background-color: var(--primary-color, #f97316);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: background-color 0.2s;
+}
+.submit-btn:hover {
+  background-color: var(--primary-hover, #ea580c);
+}
+.submit-btn:disabled { opacity: 0.7; cursor: not-allowed; }
+
+.alert-error { background: var(--error-bg, #fef2f2); color: var(--error-text, #b91c1c); padding: 12px; border-radius: 10px; margin-bottom: 20px; display: flex; gap: 8px; }
+.alert-success { background: var(--success-bg, #f0fdf4); color: var(--success-text, #15803d); padding: 12px; border-radius: 10px; margin-bottom: 20px; display: flex; gap: 8px; }
+
+.switch-container { 
+  margin-top: 25px; 
+  text-align: center; 
+  font-size: 14px; 
+  color: var(--text-muted, #78716c);
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+}
+
+.switch-btn { 
+  background: none; 
+  border: none; 
+  color: var(--primary-color, #f97316); 
+  font-weight: bold; 
+  cursor: pointer; 
+  padding: 0;
+}
+
+.switch-btn:hover {
+  text-decoration: underline;
+}

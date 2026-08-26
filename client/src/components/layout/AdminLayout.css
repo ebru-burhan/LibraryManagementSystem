@@ -1,0 +1,20 @@
+.admin-layout {
+  display: flex;
+  min-height: 100vh;
+  /* variables.css'te tanımladığımız rengi kullanıyoruz */
+  background-color: var(--bg-color); 
+}
+
+.main-content {
+  flex: 1; /* Sidebar'dan arta kalan tüm boşluğu kapla */
+  padding: 32px;
+  height: 100vh;
+  overflow-y: auto; /* İçerik çok uzun olursa sadece sağ taraf aşağı kaysın */
+}
+
+/* 1024px ve altı (Tablet/Mobil) ekranlar için daraltma */
+@media (max-width: 1024px) {
+  .main-content {
+    padding: 16px;
+  }
+}

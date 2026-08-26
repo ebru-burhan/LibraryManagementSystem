@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { authService } from '../services/api';
+import { authService } from '../../services/api';
 import { useNavigate } from 'react-router-dom';
-import './LoginPage.css'; // CSS dosyamızı buraya import ettik
+import './LoginPage.css'; 
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -52,6 +52,7 @@ export default function LoginPage() {
   return (
     <div className="login-page">
       <div className="login-card">
+
         <div className="header">
           <div className="logo">📚</div>
           <h1 className="title">Kütüphane Sistemi</h1>
@@ -65,6 +66,8 @@ export default function LoginPage() {
           </div>
         )}
 
+
+
         <form onSubmit={handleSubmit}>
           {isRegister && (
             <>
@@ -72,22 +75,27 @@ export default function LoginPage() {
                 <label className="label">Ad</label>
                 <input className="input-field" name="firstName" type="text" required onChange={handleChange} />
               </div>
+
               <div className="input-group">
                 <label className="label">Soyad</label>
                 <input className="input-field" name="lastName" type="text" required onChange={handleChange} />
               </div>
+
               <div className="input-group">
                 <label className="label">T.C. Kimlik No</label>
                 <input className="input-field" name="identityNumber" type="text" required maxLength={11} onChange={handleChange} />
               </div>
+
               <div className="input-group">
                 <label className="label">Telefon (İsteğe bağlı)</label>
                 <input className="input-field" name="phoneNumber" type="tel" onChange={handleChange} />
               </div>
+
               <div className="input-group">
                 <label className="label">Adres (İsteğe bağlı)</label>
                 <input className="input-field" name="address" type="text" onChange={handleChange} />
               </div>
+
             </>
           )}
 
@@ -95,6 +103,7 @@ export default function LoginPage() {
             <label className="label">E-posta</label>
             <input className="input-field" name="email" type="email" required onChange={handleChange} />
           </div>
+
           <div className="input-group">
             <label className="label">Şifre</label>
             <input className="input-field" name="password" type="password" required minLength={6} onChange={handleChange} />
@@ -105,13 +114,21 @@ export default function LoginPage() {
           </button>
         </form>
 
+
+
         <div className="switch-container">
+
           <span>{isRegister ? 'Zaten hesabınız var mı?' : 'Hesabınız yok mu?'}</span>
+
           <button type="button" className="switch-btn" onClick={() => setIsRegister(!isRegister)}>
+
             {isRegister ? 'Giriş Yap' : 'Kayıt Ol'}
           </button>
+
         </div>
+        
       </div>
     </div>
   );
 }
+

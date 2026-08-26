@@ -1,0 +1,17 @@
+:root {
+  /* Marka Renkleri */
+  --primary-color: #f97316; /* Tasarımdaki ana turuncu */
+  --primary-hover: #ea580c; /* Buton hover turuncusu */
+  --sidebar-active: #ffedd5; /* Menüde seçili elemanın arka planı */
+  
+  /* Arka Plan ve Metin Renkleri */
+  --bg-color: #eef1f2;      /* Sayfanın genel açık gri arka planı */
+  --sidebar-bg: #eef1f2;    /* Sol menü arka planı */
+  --text-main: #1a2331;     /* Ana metin rengi (Koyu gri/siyah) */
+  --text-muted: #5f7089;    /* Pasif/Alt metin rengi */
+  
+  /* Sınır Çizgileri ve Gölgeler */
+  --border-color: #e2e8f0;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.1);
+  --shadow-md: 0 4px 6px rgba(0,0,0,0.05);
+}
