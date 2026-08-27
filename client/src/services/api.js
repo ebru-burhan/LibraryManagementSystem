@@ -23,6 +23,30 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
+
+// (RESPONSE) NÖBETÇİSİ: Backend'den gelen hataları havada yakalar bunu da eğer yetki değişirse logout olmasını beklememek bayat tokenla işyapılmasın
+api.interceptors.response.use(
+  (response) => {
+    // İşlem başarılıysa veriyi olduğu gibi geçir
+    return response; 
+  },
+  (error) => {
+    // Eğer C# backend'i 401 (Giriş Yok) veya 403 (Yetki Yok) dönerse
+    if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+      
+      console.warn("Yetki hatası veya bayat token tespit edildi. Çıkış yapılıyor...");
+      
+      // Token'ı çöpe at
+      localStorage.removeItem('token');
+      
+      // Kullanıcıyı login sayfasına zorla yönlendir
+      window.location.href = '/'; 
+    }
+    return Promise.reject(error);
+  }
+);
+
+
 // AUTH
 export const authService = {
   login: async (loginDto) => {

@@ -51,8 +51,8 @@ public class AuthManager : IAuthService
         await _unitOfWork.GetRepository<User>().AddAsync(user);
         await _unitOfWork.CompleteAsync();
 
-        // 5. Token üret
-        var accessToken = _tokenHelper.CreateToken(user, new List<string>());
+        //  Token üret (Yeni parametre permission için)
+        var accessToken = _tokenHelper.CreateToken(user, new List<string>(), new List<string>());
 
         return new SuccessDataResult<AccessToken>(accessToken, "Kayıt işlemi başarıyla tamamlandı.");
     }
@@ -89,8 +89,28 @@ public class AuthManager : IAuthService
 
         var roleNames = roles.Select(r => r.Name).ToList();
 
+
+        //permisson!!!!!
+        var permissions = new List<string>();
+        foreach (var role in roles)
+        {
+            // Eğer rolün yetkisi boş değilse (null veya boşluk değilse)
+            if (!string.IsNullOrWhiteSpace(role.Permissions))
+            {
+                // Virgüllerden böl, etrafındaki boşlukları temizle ve listeye ekle
+                var rolePermissions = role.Permissions.Split(',').Select(p => p.Trim());
+                permissions.AddRange(rolePermissions);
+            }
+        }
+
+        // Bir kullanıcının iki farklı rolü olabilir ve ikisinde de "view_dashboard" yetkisi olabilir.
+        // Aynı yetkiyi token'a iki kez yazmamak için Distinct() ile tekrarları siliyoruz.
+        var uniquePermissions = permissions.Distinct().ToList();
+
+
+
         // 3. Token üret ve dön
-        var accessToken = _tokenHelper.CreateToken(user, roleNames);
+        var accessToken = _tokenHelper.CreateToken(user, roleNames, uniquePermissions);
         return new SuccessDataResult<AccessToken>(accessToken, "Giriş başarılı.");
     }
 

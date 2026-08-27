@@ -22,6 +22,14 @@ public class RoleConfiguration : AuditableConfiguration<Role>
             .IsRequired(false)
             .HasMaxLength(250);
 
+
+        //Permissions ayarı!!!!
+        // Yetkiler virgülle ayrılmış uzun bir metin olabileceği için uzunluğu artırdık
+        builder.Property(x => x.Permissions)
+            .IsRequired(false)
+            .HasMaxLength(1000);
+
+
         // Rol adı benzersiz olmalı
         builder.HasIndex(x => x.Name).IsUnique();
     }

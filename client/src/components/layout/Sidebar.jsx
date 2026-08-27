@@ -1,75 +1,51 @@
 import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { useAuth } from '../../hooks/useAuth'; // Zeka birimimizi içeri alıyoruz
+import { useAuth } from '../../hooks/useAuth'; 
+import { menuItems } from './menuConfig'; 
 import './Sidebar.css';
 
 export default function Sidebar() {
   const navigate = useNavigate();
-  
-  // Hook'umuzu çağırıp kullanıcının yetkilerini alıyoruz
-  const { isAdmin, isMember } = useAuth(); 
+  // Artık rollerle ve portallarla işimiz yok, sadece yetkileri (permissions) alıyoruz!
+  const { permissions } = useAuth(); 
 
   const handleLogout = () => {
-    //kulanıcı çıkınca tokenı sil ve logine şutla
     localStorage.removeItem('token');
     navigate('/');
   };
 
+  // FİLTRE: Menüleri tamamen kullanıcının cebindeki yetkilere göre süzüyoruz
+  const filteredMenus = menuItems.filter(item => {
+    if (!item.requiredPermission) return true;
+    return permissions.includes(item.requiredPermission);
+  });
+
   return (
     <aside className="sidebar">
-      {/* Logo Alanı */}
+      {/* Sabit, tertemiz logo alanı */}
       <div className="sidebar-header">
         <div className="logo-icon">📚</div>
         <div className="logo-text">
           <h2>Lumina Library</h2>
-          {/* Alt başlık bile role göre değişiyor! */}
-          <span>{isAdmin ? 'Admin Portal' : 'User Portal'}</span>
+          <span> Portal</span> {/* İstersen burayı da sabit bir alt yazı yapabiliriz */}
         </div>
       </div>
 
-      {/* Ana Eylem Butonu - Sadece Admin yeni kayıt yapabilir */}
-      {isAdmin && (
-        <div className="sidebar-action">
+      {/* "+ New Entry" butonu da artık rol adına değil, doğrudan yetkiye bağlı! */}
+      {permissions.includes('create_book') && (
+        <div className="sidebar-action" style={{ marginBottom: '24px' }}>
           <button className="new-entry-btn">+ New Entry</button>
         </div>
       )}
 
-      {/* Menü Linkleri */}
+      {/* Dinamik Menü Alanı */}
       <nav className="sidebar-nav">
-        
-        {/* 1. SADECE ADMİNLERİN GÖRECEĞİ MENÜLER */}
-        {isAdmin && (
-          <>
-            <NavLink to="/dashboard" className="nav-item">
-              <span className="nav-icon">📊</span>
-              Dashboard
-            </NavLink>
-            
-            <NavLink to="/applications" className="nav-item">
-              <span className="nav-icon">📂</span>
-              Applications
-            </NavLink>
-
-            <NavLink to="/members" className="nav-item">
-              <span className="nav-icon">👥</span>
-              Members
-            </NavLink>
-          </>
-        )}
-
-        {/* 2. SADECE ONAYLI ÜYELERİN (MEMBER) GÖRECEĞİ MENÜLER */}
-        {isMember && (
-          <NavLink to="/my-loans" className="nav-item">
-            <span className="nav-icon">📖</span>
-            My Loans
+        {filteredMenus.map((menu) => (
+          <NavLink key={menu.path} to={menu.path} className="nav-item">
+            <span className="nav-icon">{menu.icon}</span>
+            {menu.title}
           </NavLink>
-        )}
-
-        {/* 3. HERKESİN (Admin, Member, Düz User) GÖRECEĞİ ORTAK MENÜ */}
-        <NavLink to="/catalog" className="nav-item">
-          <span className="nav-icon">🔍</span>
-          Catalog
-        </NavLink>
+        ))}
       </nav>
 
       {/* Alt Kısım (Çıkış) */}

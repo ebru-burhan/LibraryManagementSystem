@@ -78,4 +78,8 @@ app.UseAuthorization();
 
 app.MapControllers();
 
+
+// Uygulama ayağa kalkarken otomatik seed mekanizmasını tetikler
+Library.Business.SeedData.DatabaseSeed.Seed(app);
+
 app.Run();

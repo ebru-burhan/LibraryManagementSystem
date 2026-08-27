@@ -5,5 +5,9 @@ namespace Library.Business.Security.Jwt;
 
 public interface ITokenHelper
 {
-    AccessToken CreateToken(User user, IEnumerable<string> roles);
+    // AccessToken CreateToken(User user, IEnumerable<string> roles);
+
+
+    // YENİ: IEnumerable<string> permissions parametresini ekledik
+    AccessToken CreateToken(User user, IEnumerable<string> roles, IEnumerable<string> permissions);
 }

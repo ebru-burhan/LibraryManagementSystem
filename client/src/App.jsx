@@ -4,10 +4,9 @@ import { Routes, Route } from 'react-router-dom';
 // Sayfa yolları klasör isimlerine tam uygun hale getirildi (login, dashboard)
 import LoginPage from './pages/login/LoginPage';
 import DashboardPage from './pages/dashboard/DashboardPage';
-
-import AdminLayout from './components/layout/AdminLayout'; // Layout'u import etmeyi unutma!
 // Güvenlik görevlisinin adresi routes klasörü olarak güncellendi
 import ProtectedRoute from './routes/ProtectedRoute'; 
+import MainLayout from './components/layout/MainLayout';
 
 export default function App() {
   return (
@@ -25,7 +24,7 @@ export default function App() {
       <Route 
         element={
           <ProtectedRoute>
-            <AdminLayout />
+            <MainLayout />
           </ProtectedRoute>
         }
       >

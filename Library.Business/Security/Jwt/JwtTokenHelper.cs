@@ -18,7 +18,9 @@ public class JwtTokenHelper : ITokenHelper
         _jwtOptions = jwtOptions.Value;
     }
 
-    public AccessToken CreateToken(User user, IEnumerable<string> roles)
+
+
+    public AccessToken CreateToken(User user, IEnumerable<string> roles, IEnumerable<string> permissions)
     {
         var tokenHandler = new JwtSecurityTokenHandler();
         var key = Encoding.UTF8.GetBytes(_jwtOptions.Key);
@@ -33,6 +35,15 @@ public class JwtTokenHelper : ITokenHelper
         {
             claims.Add(new Claim(ClaimTypes.Role, role));
         }
+
+        //Yetkileri Token'a mühürlüyoruz
+        foreach (var permission in permissions)
+        {
+            // Özel bir isimle ("Permission") yetkileri claim olarak ekliyoruz
+            claims.Add(new Claim("Permission", permission));
+        }
+
+
 
         var expirationDate = DateTime.UtcNow.AddMinutes(_jwtOptions.ExpirationInMinutes);
 

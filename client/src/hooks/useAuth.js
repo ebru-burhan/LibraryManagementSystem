@@ -3,6 +3,7 @@ import { jwtDecode } from 'jwt-decode';
 export const useAuth = () => {
   const token = localStorage.getItem('token');
   let roles = [];
+  let permissions = [];
 
   if (token) {
     try {
@@ -10,7 +11,7 @@ export const useAuth = () => {
       const decodedToken = jwtDecode(token);
 
       // C# .NET Core backend'leri rolleri genellikle uzun bir URI şemasıyla döner. kurumsal yerde böyle evet byte olarak fazla yer kaplıyor 
-      // //ama ilerde değişirse role olarak url yerine modern olur onu da ekledik
+      // //ama ilerde değişirse role olarak url yerine modern olur onu da ekledik yok olmasın modern yoksa controller da [auth..] lar hata geliyor :(
       const roleClaim = decodedToken['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] || decodedToken.role;
 
       // Kullanıcının tek bir rolü (string) veya birden fazla rolü (array) olabilir.
@@ -18,6 +19,18 @@ export const useAuth = () => {
       if (roleClaim) {
         roles = Array.isArray(roleClaim) ? roleClaim : [roleClaim];
       }
+
+
+     // permissionn!!!!!!!!!
+      // C# tarafında adını "Permission" koyduğumuz için doğrudan böyle okuyoruz
+      const permissionClaim = decodedToken.Permission || decodedToken.permission;
+      if (permissionClaim) {
+        // Eğer tek yetki varsa string dönebilir, çok yetki varsa dizi döner. Biz hep dizi (array) yapıyoruz.
+        permissions = Array.isArray(permissionClaim) ? permissionClaim : [permissionClaim];
+      } 
+
+
+
     } catch (error) {
       console.error("Token çözümlenirken geçersiz format hatası:", error);
     }
@@ -31,6 +44,7 @@ export const useAuth = () => {
   return { 
     token, 
     roles, 
+    permissions,
     isAdmin, 
     isMember 
   };

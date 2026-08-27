@@ -1,11 +1,11 @@
 import React from 'react';
 import { Outlet } from 'react-router-dom';
 import Sidebar from './Sidebar'; 
-import './AdminLayout.css';
+import './MainLayout.css';
 
-export default function AdminLayout() {
+export default function MainLayout() {
   return (
-    <div className="admin-layout"  style={{ display: 'flex', height: '100vh', backgroundColor: 'var(--bg-color)' }}>
+    <div className="main-layout"  style={{ display: 'flex', height: '100vh', backgroundColor: 'var(--bg-color)' }}>
       {/* Sol Menü (Sayfa değişse de sabit kalacak) */}
       <Sidebar />
       
