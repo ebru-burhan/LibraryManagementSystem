@@ -68,4 +68,15 @@ export const userService = {
   },
 };
 
+
+
+export const membershipService = {
+  apply: async (applicationDto) => {
+    // Controller ın da [HttpPost("apply")] endpoint'ine POST isteği atar
+    const response = await api.post('/MembershipApplications/apply', applicationDto);
+    return response.data;
+  },
+};
+
+
 export default api;

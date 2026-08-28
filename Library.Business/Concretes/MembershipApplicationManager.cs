@@ -2,7 +2,9 @@
 using Library.Business.Abstracts;
 using Library.DataAccess.Repositories.Abstracts;
 using Library.Entity.Concrete.Auth;
+using Library.Entity.Concrete.Lookups;
 using Library.Entity.Concrete.Membership;
+using Library.Entity.Constants;
 using Library.Model.Dtos.Membership;
 using Library.Model.Results;
 
@@ -53,7 +55,18 @@ public class MembershipApplicationManager : IMembershipApplicationService
             return new ErrorResult("Bu T.C. Kimlik numarası ile sistemde zaten bir başvuru mevcut.");
         }
 
-        // 4. VERİ DÖNÜŞÜMÜ   DTO'da Ad, Soyad, Email yok
+        // 1. Lookup tablosundan 'PENDING' durumunun ID'sini dinamik olarak çekelim
+        var statusRepository = _unitOfWork.GetRepository<MembershipApplicationStatus>();
+        var pendingStatuses = await statusRepository.FindAsync(x => x.Code == Statuses.MembershipApplication.Pending);
+        var pendingStatus = pendingStatuses.FirstOrDefault();
+
+        if (pendingStatus == null)
+        {
+            return new ErrorResult("Sistemde başvuru durumları tanımlanmamış. Lütfen veri tabanı seed işlemlerini kontrol edin.");
+        }
+
+
+        //   DTO'da Ad, Soyad, Email yok
         var application = new MembershipApplication
         {
             // Kullanıcıdan koparılan "Değiştirilemez" arşiv verileri (init korumalı)
@@ -71,13 +84,10 @@ public class MembershipApplicationManager : IMembershipApplicationService
             IsTermsAccepted = dto.IsTermsAccepted,
 
             // Sistem atamaları
-            UserId = userId,
-            ApplicationStatusId = 1 // Pending
+            UserId = userId,// Token'dan gelen güvenilir ID
+            ApplicationStatusId = pendingStatus.Id  // Lookups tablosuna göre 'Pending / Bekliyor' durumu
         };
 
-        // 5. GÜVENLİ ATAMALAR EKSİK ALANLARI GÜVENLİ KAYNAKTAN (USER) MÜHÜRLE
-        application.UserId = userId; // Token'dan gelen güvenilir ID
-        application.ApplicationStatusId = 1; // Lookups tablosuna göre 'Pending / Bekliyor' durumu
 
         // 6. VERİTABANI İŞLEMİ
         await applicationRepository.AddAsync(application);

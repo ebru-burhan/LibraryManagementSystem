@@ -2,6 +2,8 @@
 using Library.DataAccess.Contexts;
 using Library.Entity.Concrete.Auth;
 using Library.Entity.Concrete.Catalog;
+using Library.Entity.Concrete.Lookups;
+using Library.Entity.Constants;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -17,10 +19,10 @@ namespace Library.Business.SeedData
                 var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
                 var hashingHelper = scope.ServiceProvider.GetRequiredService<IHashingHelper>();
 
-                // 1. Otomatik migration uygula
+                //  Otomatik migration uygula
                 context.Database.Migrate();
 
-                // 2. ROLLERİ SEED ET
+                //  ROLLERİ SEED ET
                 if (!context.Roles.Any())
                 {
                     context.Roles.AddRange(
@@ -52,7 +54,7 @@ namespace Library.Business.SeedData
                     context.SaveChanges();
                 }
 
-                // 3. ADMIN KULLANICISINI VE ROLÜNÜ SEED ET (Gerçek Hashing ile)
+                //  ADMIN KULLANICISINI VE ROLÜNÜ SEED ET (Gerçek Hashing ile)
                 if (!context.Users.Any())
                 {
                     hashingHelper.CreatePasswordHash("123456", out byte[] passwordHash, out byte[] passwordSalt);
@@ -85,7 +87,50 @@ namespace Library.Business.SeedData
                     }
                 }
 
-                // 4. ÖRNEK KİTAPLARI SEED ET
+
+                // ÜYELİK BAŞVURU DURUMLARINI SEED ET
+                if (!context.Set<MembershipApplicationStatus>().Any())
+                {
+                    context.Set<MembershipApplicationStatus>().AddRange(
+                        new MembershipApplicationStatus
+                        {
+                            Code = Statuses.MembershipApplication.Pending,
+                            Name = "Beklemede",
+                            CreatedAt = DateTime.Now,
+                            ExternalId = Guid.NewGuid()
+                        },
+                        new MembershipApplicationStatus
+                        {
+                            Code = Statuses.MembershipApplication.Approved,
+                            Name = "Onaylandı",
+                            CreatedAt = DateTime.Now,
+                            ExternalId = Guid.NewGuid()
+                        },
+                        new MembershipApplicationStatus
+                        {
+                            Code = Statuses.MembershipApplication.Rejected,
+                            Name = "Reddedildi",
+                            CreatedAt = DateTime.Now,
+                            ExternalId = Guid.NewGuid()
+                        },
+                        new MembershipApplicationStatus
+                        {
+                            Code = Statuses.MembershipApplication.Incomplete,
+                            Name = "Eksik Bilgi",
+                            CreatedAt = DateTime.Now,
+                            ExternalId = Guid.NewGuid()
+                        }
+                    );
+                    context.SaveChanges();
+                }
+
+
+
+
+
+
+
+                //  ÖRNEK KİTAPLARI SEED ET
                 if (!context.Books.Any())
                 {
                     context.Books.AddRange(
