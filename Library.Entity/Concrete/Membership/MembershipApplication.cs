@@ -1,4 +1,5 @@
 ﻿using Library.Entity.Abstract;
+using Library.Entity.Concrete.Auth;
 using Library.Entity.Concrete.Lookups;
 
 namespace Library.Entity.Concrete.Membership;
@@ -21,10 +22,8 @@ public class MembershipApplication : AuditableEntity
     public string? Address { get; init; }
 
     // Hesap Bilgileri
-    public string UserName { get; set; } = null!;
-    // Kullanıcı henüz onaylanmadığı için şifresini burada hash'li olarak bekletiyoruz
-    public byte[] PasswordHash { get; set; } = null!;
-    public byte[] PasswordSalt { get; set; } = null!;
+    public int UserId { get; set; }
+    public User User { get; set; } = null!;
 
     // Onaylar
     public bool IsKvkkApproved { get; init; }

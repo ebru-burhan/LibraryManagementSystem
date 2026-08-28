@@ -13,7 +13,7 @@ public class User : AuditableEntity
     // Çekirdek Kişisel ve İletişim Bilgileri
     public string FirstName { get; set; } = null!;
     public string LastName { get; set; } = null!;
-    public string IdentityNumber { get; set; } = null!;
+    public string? IdentityNumber { get; set; }
     public DateOnly DateOfBirth { get; set; }
     public string? PhoneNumber { get; set; }
     public string? Address { get; set; }

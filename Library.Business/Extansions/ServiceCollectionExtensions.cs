@@ -27,10 +27,24 @@ public static class ServiceCollectionExtensions
         services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 
 
+
+        // AutoMapper Kaydı
+        // Mevcut projedeki (Business katmanı) tüm "Profile" sınıflarını (MembershipProfile vb.) otomatik bulup kaydeder.
+        //Merkezi Profil Yönetimi :)))
+        services.AddAutoMapper(cfg =>
+        {
+     
+            // İleride modüller eklendikçe buraya tek satır olarak şutlayacağız:
+            // cfg.AddProfile<CatalogProfile>();
+            // cfg.AddProfile<OperationsProfile>();
+        });
+
         // (Business Services)
         // Dışarıdan IAuthService istendiğinde ona AuthManager ver (Dependency Inversion)
+        // TODO: service manager ve mappingleri eklemeyi unutmaaaa!!!!!!
         services.AddScoped<IAuthService, AuthManager>();
         services.AddScoped<IRoleService, RoleManager>();
+        services.AddScoped<IMembershipApplicationService, MembershipApplicationManager>();
 
         //JWT - Güvenlik Araçları ve Ayarları
         services.Configure<JwtOptions>(configuration.GetRequiredSection(JwtOptions.SectionName));

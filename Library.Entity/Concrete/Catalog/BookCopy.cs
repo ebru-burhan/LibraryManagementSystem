@@ -15,5 +15,5 @@ public class BookCopy : AuditableEntity
     //foreign key
     public int StatusId { get; set; }
     // EF, ilişkileri anlaması için gereken Navigation Property
-    public BookStatus Status { get; set; } //(Lookup tablosunda
+    public BookStatus Status { get; set; } = null!;//(Lookup tablosunda
 }

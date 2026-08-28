@@ -21,9 +21,7 @@ public class MembershipApplicationConfiguration : AuditableConfiguration<Members
             .IsRequired()
             .HasMaxLength(50);
 
-        builder.Property(x => x.UserName)
-            .IsRequired()
-            .HasMaxLength(50);
+  
 
         builder.Property(x => x.IdentityNumber)
             .IsRequired()
@@ -43,8 +41,6 @@ public class MembershipApplicationConfiguration : AuditableConfiguration<Members
             .IsRequired(false)
             .HasMaxLength(500);
 
-        builder.Property(x => x.PasswordHash).IsRequired();
-        builder.Property(x => x.PasswordSalt).IsRequired();
 
         // Boolean (KVKK ve Şartlar) değerleri zaten 'required' davranır ama veritabanında varsayılan atayabiliriz
         builder.Property(x => x.IsKvkkApproved)
@@ -60,5 +56,14 @@ public class MembershipApplicationConfiguration : AuditableConfiguration<Members
             .WithMany() // ApplicationStatus sınıfında List<MembershipApplication> tutmana gerek yok, tek yönlü yeterli
             .HasForeignKey(ma => ma.ApplicationStatusId)
             .OnDelete(DeleteBehavior.Restrict); // Durum silinirse, başvurular etkilenmesin (hata versin)
+
+
+
+        // User İlişkisi
+        builder.HasOne(ma => ma.User)
+            .WithMany() // Bir User'ın iptal edilenlerle birlikte geçmişte birden fazla başvurusu olabilir
+            .HasForeignKey(ma => ma.UserId)
+            .OnDelete(DeleteBehavior.Restrict);
+
     }
 }

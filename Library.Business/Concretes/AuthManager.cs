@@ -41,9 +41,6 @@ public class AuthManager : IAuthService
             PasswordSalt = passwordSalt,
             FirstName = registerDto.FirstName,
             LastName = registerDto.LastName,
-            IdentityNumber = registerDto.IdentityNumber,
-            PhoneNumber = registerDto.PhoneNumber,
-            Address = registerDto.Address,
             IsActive = true
         };
 

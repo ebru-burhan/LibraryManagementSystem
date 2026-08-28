@@ -1,6 +1,7 @@
 using Library.Business.Extensions;
 using Microsoft.OpenApi;
 
+
 var builder = WebApplication.CreateBuilder(args);
 
 
@@ -24,7 +25,7 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddEndpointsApiExplorer();
 
-builder.Services.AddSwaggerGen(options =>
+builder.Services.AddSwaggerGen( options =>
 {
     options.SwaggerDoc("v1", new OpenApiInfo
     {
@@ -48,6 +49,10 @@ builder.Services.AddSwaggerGen(options =>
 
         BearerFormat = "JWT"
     });
+
+
+    //requirement kısmı çıldırtttııı swagger yerine postmandan bakcam
+
 });
 
 

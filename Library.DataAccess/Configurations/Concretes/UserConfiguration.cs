@@ -24,9 +24,13 @@ public class UserConfiguration : AuditableConfiguration<User>
 
         // TC Kimlik No hem 11 karakter olmalı hem de sistemde benzersiz olmalı
         builder.Property(x => x.IdentityNumber)
-            .IsRequired()
+            .IsRequired(false)
             .HasMaxLength(11);
-        builder.HasIndex(x => x.IdentityNumber).IsUnique();
+        // DİKKAT (Savunmacı Programlama): SQL Server'da birden fazla kişinin TC'si "null" olursa Unique Index patlar.
+        // Sadece dolu olan TC'lerin benzersiz olmasını sağlamak için filtre ekliyoruz:
+        builder.HasIndex(x => x.IdentityNumber)
+        .IsUnique()
+        .HasFilter("[IdentityNumber] IS NOT NULL");
 
         // Hesap Bilgileri
         builder.Property(x => x.Email)

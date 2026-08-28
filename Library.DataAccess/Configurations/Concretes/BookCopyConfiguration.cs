@@ -16,6 +16,7 @@ public class BookCopyConfiguration : AuditableConfiguration<BookCopy>
         builder.Property(x => x.Barcode).IsRequired().HasMaxLength(50);
         builder.HasIndex(x => x.Barcode).IsUnique();
 
+        //kitabın raftaki yeri sabit ödünç verdin geri getirdiler nere koycan aha buraya
         builder.Property(x => x.ShelfLocation).IsRequired().HasMaxLength(50);
 
 
@@ -28,6 +29,7 @@ public class BookCopyConfiguration : AuditableConfiguration<BookCopy>
         builder.HasOne(bc => bc.Status)
                .WithMany() // Status (Lookup) tarafında listeye gerek yok
                .HasForeignKey(bc => bc.StatusId)
+               .IsRequired()
                .OnDelete(DeleteBehavior.Restrict); 
         // Statü sistemden silinemez statüler auditable soft delete ama dbden silinebiirdi burda onu engelledik restrict ile.
     }
