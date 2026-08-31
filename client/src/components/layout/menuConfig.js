@@ -24,5 +24,13 @@ export const menuItems = [
     path: '/catalog', 
     icon: '🔍', 
     requiredPermission: null // null demek: Sisteme giriş yapan herkes görebilir
-  }
+  },
+
+
+   { 
+    title: 'Applications', 
+    path: '/applications', 
+    icon: '🔍', 
+    requiredPermission: 'manage_members'
+  },
 ];

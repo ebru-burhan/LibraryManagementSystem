@@ -1,0 +1,98 @@
+.dashboard-container {
+  max-width: 900px;
+  margin: 40px auto;
+  padding: 0 20px;
+  font-family: inherit;
+}
+
+.dashboard-header {
+  margin-bottom: 30px;
+}
+
+.dashboard-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.loading-text {
+  text-align: center;
+  margin-top: 50px;
+  font-size: 16px;
+  color: #64748b;
+}
+
+/* Genel Durum Kartı Yapısı */
+.status-card {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 30px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  border-left: 6px solid #cbd5e1;
+  margin-bottom: 20px;
+  transition: transform 0.2s ease;
+}
+
+.status-card:hover {
+  transform: translateY(-2px);
+}
+
+.status-card h3 {
+  font-size: 20px;
+  margin-bottom: 12px;
+  color: #0f172a;
+}
+
+.status-card p {
+  color: #475569;
+  font-size: 15px;
+  line-height: 1.6;
+  margin-bottom: 20px;
+}
+
+/* Kart Türlerine Göre Renk İmzaları */
+.status-card.approved {
+  border-left-color: #22c55e; /* Başarılı yeşil */
+}
+
+.status-card.pending {
+  border-left-color: #f59e0b; /* Bekliyor sarı/turuncu */
+}
+
+.status-card.none {
+  border-left-color: #f97316; /* Projenin imza turuncu rengi */
+}
+
+.status-card.error {
+  border-left-color: #ef4444; /* Reddedildi kırmızı */
+}
+
+/* Aksiyon Butonları */
+.action-btn {
+  display: inline-block;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  text-decoration: none;
+  font-size: 14px;
+  transition: background-color 0.2s, opacity 0.2s;
+  cursor: pointer;
+}
+
+.btn-green {
+  background-color: #22c55e;
+  color: #ffffff;
+}
+
+.btn-green:hover {
+  background-color: #16a34a;
+}
+
+.btn-orange {
+  background-color: #f97316;
+  color: #ffffff;
+}
+
+.btn-orange:hover {
+  background-color: #ea580c;
+}

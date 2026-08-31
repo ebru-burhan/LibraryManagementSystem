@@ -9,4 +9,7 @@ public interface IAuthService
     Task<IDataResult<AccessToken>> RegisterAsync(RegisterDto registerDto);
     Task<IDataResult<AccessToken>> LoginAsync(LoginDto loginDto);
     Task<IResult> UserExistsAsync(string email);
+
+    Task<IResult> ForgotPasswordAsync(ForgotPasswordDto forgotPasswordDto);
+    Task<IResult> ResetPasswordAsync(ResetPasswordDto resetPasswordDto);
 }

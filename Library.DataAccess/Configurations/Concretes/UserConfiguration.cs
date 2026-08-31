@@ -54,6 +54,15 @@ public class UserConfiguration : AuditableConfiguration<User>
             .IsRequired()
             .HasDefaultValue(true);
 
+        // Boolean (KVKK ve Şartlar) değerleri zaten 'required' davranır ama veritabanında varsayılan atayabiliriz
+        builder.Property(x => x.IsKvkkApproved)
+            .IsRequired()
+            .HasDefaultValue(false);
+
+        builder.Property(x => x.IsTermsAccepted)
+            .IsRequired()
+            .HasDefaultValue(false);
+
         // Not: Member ilişkisi (Bire-Bir) genellikle MemberConfiguration içinde yönetilir, çünkü her member bir userdir her user bi member değildir :))
         // o yüzden burayı temiz bırakıyoruz.
     }

@@ -68,6 +68,8 @@ namespace Library.Business.SeedData
                         DateOfBirth = new DateOnly(1990, 1, 1),
                         PasswordHash = passwordHash,
                         PasswordSalt = passwordSalt,
+                        IsKvkkApproved = true, 
+                        IsTermsAccepted = true, 
                         CreatedAt = DateTime.Now,
                         ExternalId = Guid.NewGuid()
                     };

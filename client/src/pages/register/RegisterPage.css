@@ -1,45 +1,47 @@
+/* --- GENEL SAYFA VE KART TASARIMI --- */
 .register-page {
   display: flex;
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background-color: var(--bg-color, #f4f6f9);
+  background-color: var(--bg-color, #eef1f2);
   padding: 20px;
 }
 
 .register-card {
   background: var(--card-bg, #ffffff);
-  padding: 40px;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  padding: 35px 40px;
+  border-radius: 16px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
   width: 100%;
-  max-width: 480px;
+  max-width: 440px;
 }
 
 .header {
   text-align: center;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
 }
 
 .logo {
-  font-size: 40px;
-  margin-bottom: 10px;
+  font-size: 36px;
+  margin-bottom: 8px;
 }
 
 .title {
   font-size: 24px;
   font-weight: 700;
-  color: var(--text-main, #333);
+  color: var(--text-main, #1a2331);
 }
 
 .subtitle {
-  font-size: 14px;
-  color: var(--text-muted, #666);
+  font-size: 13px;
+  color: var(--text-muted, #5f7089);
   margin-top: 4px;
 }
 
+/* --- FORM ELEMANLARI --- */
 .input-group {
-  margin-bottom: 16px;
+  margin-bottom: 14px;
   display: flex;
   flex-direction: column;
 }
@@ -48,54 +50,78 @@
   font-size: 13px;
   font-weight: 600;
   margin-bottom: 6px;
-  color: var(--text-main, #444);
+  color: var(--text-main, #1a2331);
 }
 
 .input-field {
-  padding: 10px 12px;
-  border: 1px solid var(--border-color, #ccc);
-  border-radius: 6px;
+  padding: 11px 14px;
+  border: 1px solid var(--border-color, #e2e8f0);
+  border-radius: 8px;
   font-size: 14px;
   outline: none;
   transition: border-color 0.2s;
+  background-color: #fff;
+  color: var(--text-main, #1a2331);
 }
 
 .input-field:focus {
-  border-color: var(--primary-color, #007bff);
+  border-color: var(--primary-color, #f97316);
+}
+
+.checkbox-group {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 12px;
+  font-size: 13px;
+  color: var(--text-main, #1a2331);
+  line-height: 1.4;
+}
+
+.checkbox-group input[type="checkbox"] {
+  accent-color: var(--primary-color, #f97316);
+  width: 16px;
+  height: 16px;
+  margin-top: 1px;
+  cursor: pointer;
+}
+
+.checkbox-group label {
+  margin: 0;
 }
 
 .submit-btn {
   width: 100%;
   padding: 12px;
-  background-color: var(--primary-color, #007bff);
+  background-color: var(--primary-color, #f97316);
   color: white;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   font-size: 15px;
   font-weight: 600;
   cursor: pointer;
-  margin-top: 10px;
   transition: background-color 0.2s;
 }
 
 .submit-btn:hover {
-  background-color: var(--primary-hover, #0056b3);
+  background-color: var(--primary-hover, #ea580c);
 }
 
 .submit-btn:disabled {
-  background-color: #ccc;
+  background-color: #cbd5e1;
   cursor: not-allowed;
 }
 
+/* --- UYARI VE YÖNLENDİRME --- */
 .switch-container {
   text-align: center;
   margin-top: 20px;
   font-size: 14px;
-  color: var(--text-muted, #666);
+  color: var(--text-muted, #5f7089);
 }
 
 .switch-link {
-  color: var(--primary-color, #007bff);
+  color: var(--primary-color, #f97316);
   text-decoration: none;
   font-weight: 600;
   margin-left: 6px;
@@ -107,8 +133,8 @@
 
 .alert-error, .alert-success {
   padding: 10px 12px;
-  border-radius: 6px;
-  font-size: 14px;
+  border-radius: 8px;
+  font-size: 13px;
   margin-bottom: 16px;
   display: flex;
   align-items: center;
@@ -116,11 +142,140 @@
 }
 
 .alert-error {
-  background-color: #f8d7da;
-  color: #721c24;
+  background-color: #fee2e2;
+  color: #b91c1c;
 }
 
 .alert-success {
-  background-color: #d4edda;
-  color: #155724;
+  background-color: #dcfce7;
+  color: #15803d;
+}
+
+/* --- ŞIK MODAL (POP-UP) TASARIMI --- */
+.clickable-text {
+  color: var(--primary-color, #f97316);
+  font-weight: 600;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.clickable-text:hover {
+  color: var(--primary-hover, #ea580c);
+  text-decoration: underline;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(15, 23, 42, 0.6); 
+  backdrop-filter: blur(5px); 
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  animation: fadeIn 0.2s ease-out forwards;
+}
+
+.modal-content {
+  background: #ffffff;
+  width: 90%;
+  max-width: 550px;
+  border-radius: 16px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; 
+  animation: slideUp 0.3s ease-out forwards;
+}
+
+.modal-header {
+  padding: 20px 24px;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #f8fafc;
+}
+
+.modal-header h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.close-icon {
+  background: none;
+  border: none;
+  font-size: 28px;
+  line-height: 1;
+  color: #64748b;
+  cursor: pointer;
+  transition: color 0.2s;
+  padding: 0;
+}
+
+.close-icon:hover {
+  color: #ef4444; 
+}
+
+.modal-body {
+  padding: 24px;
+  max-height: 60vh; 
+  overflow-y: auto;
+  font-size: 14px;
+  color: #475569;
+  line-height: 1.6;
+}
+
+.modal-body p {
+  margin-bottom: 12px;
+}
+
+.modal-body p:last-child {
+  margin-bottom: 0;
+}
+
+.modal-footer {
+  padding: 16px 24px;
+  border-top: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: flex-end;
+  background-color: #f8fafc;
+}
+
+.accept-modal-btn {
+  padding: 10px 20px;
+  background-color: var(--primary-color, #f97316);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.accept-modal-btn:hover {
+  background-color: var(--primary-hover, #ea580c);
+}
+
+/* --- ANİMASYONLAR --- */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { 
+    opacity: 0;
+    transform: translateY(30px) scale(0.95);
+  }
+  to { 
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }

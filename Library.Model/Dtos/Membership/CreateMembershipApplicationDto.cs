@@ -13,9 +13,6 @@ public class CreateMembershipApplicationDto
  
     public string Address { get; set; } = null!;
 
-    // Onaylar (Bunlar true gelmeden işlemi Business katmanında reddedeceğiz)
-    public bool IsKvkkApproved { get; set; }
-    public bool IsTermsAccepted { get; set; }
 
     // TODO: status id yok kendi belirlemicek sonucta bekliyor yapıcaz managerda otomatik admin işlem yapcak zaten
 }

@@ -42,14 +42,7 @@ public class MembershipApplicationConfiguration : AuditableConfiguration<Members
             .HasMaxLength(500);
 
 
-        // Boolean (KVKK ve Şartlar) değerleri zaten 'required' davranır ama veritabanında varsayılan atayabiliriz
-        builder.Property(x => x.IsKvkkApproved)
-            .IsRequired()
-            .HasDefaultValue(false);
 
-        builder.Property(x => x.IsTermsAccepted)
-            .IsRequired()
-            .HasDefaultValue(false);
 
         // Başvuru Durumu İlişkisi (one to many)
         builder.HasOne(ma => ma.ApplicationStatus)

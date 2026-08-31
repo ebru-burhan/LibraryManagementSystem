@@ -10,6 +10,11 @@ public class User : AuditableEntity
     public byte[] PasswordHash { get; set; } = null!;
     public byte[] PasswordSalt { get; set; } = null!;
 
+
+    public string? PasswordResetCode { get; set; }
+    public DateTime? PasswordResetCodeExpiration { get; set; }
+
+
     // Çekirdek Kişisel ve İletişim Bilgileri
     public string FirstName { get; set; } = null!;
     public string LastName { get; set; } = null!;
@@ -19,6 +24,11 @@ public class User : AuditableEntity
     public string? Address { get; set; }
 
     public bool IsActive { get; set; } = true;
+
+
+    // Onaylar
+    public bool IsKvkkApproved { get; init; }
+    public bool IsTermsAccepted { get; set; }
 
     // İlişkiler
     public ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();

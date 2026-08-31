@@ -4,6 +4,9 @@ export const useAuth = () => {
   const token = localStorage.getItem('token');
   let roles = [];
   let permissions = [];
+  let firstName = "";
+  let lastName = "";
+  let email = "";
 
   if (token) {
     try {
@@ -29,6 +32,23 @@ export const useAuth = () => {
         permissions = Array.isArray(permissionClaim) ? permissionClaim : [permissionClaim];
       } 
 
+      // AD (GivenName) Okuma
+      const firstNameClaim = decodedToken['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname'] || decodedToken.given_name;
+      if (firstNameClaim) {
+        firstName = firstNameClaim;
+      }
+
+      // SOYAD (Surname) Okuma
+      const lastNameClaim = decodedToken['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname'] || decodedToken.family_name;
+      if (lastNameClaim) {
+        lastName = lastNameClaim;
+      }
+
+      // E-POSTA Okuma
+      const emailClaim = decodedToken['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress'] || decodedToken.email;
+      if (emailClaim) {
+        email = emailClaim;
+      }
 
 
     } catch (error) {
@@ -40,12 +60,18 @@ export const useAuth = () => {
   const isAdmin = roles.includes('Admin');
   const isMember = roles.includes('Member');
 
+
+
   // İsteyen component sadece ihtiyacı olanı alsın diye dışarı aktarıyoruz
   return { 
     token, 
     roles, 
     permissions,
     isAdmin, 
-    isMember 
+    isMember,
+    firstName, 
+    lastName,
+    email
+
   };
 };

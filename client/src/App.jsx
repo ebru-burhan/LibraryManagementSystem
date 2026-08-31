@@ -6,6 +6,7 @@ import RegisterPage from './pages/register/RegisterPage';
 import DashboardPage from './pages/dashboard/DashboardPage';
 import MembershipApplicationPage from "./pages/membershipApplication/MembershipApplicationPage";
 // Güvenlik görevlisinin adresi routes klasörü olarak güncellendi
+import AuthorizeRoute from './routes/AuthorizeRoute';
 import ProtectedRoute from './routes/ProtectedRoute'; 
 import MainLayout from './components/layout/MainLayout';
 
@@ -32,10 +33,23 @@ export default function App() {
 
 
       <Route path="/dashboard" element={<DashboardPage />} />
-        {/* İleride eklenecek /catalog, /members gibi sayfalar da buraya gelecek */}
+
+      {/* İleride eklenecek /catalog, /members gibi sayfalar da buraya gelecek */}
       <Route path="/membership-apply" element={<MembershipApplicationPage />} />
       
+             
+      {/* Sadece onaylı Member veya Admin rolüne sahip olanlar erişebilir */}
       
+        {/* Sadece 'Member' veya 'Admin' yetkisi olanlar görebilir, aksi takdirde membership-apply'a atılır */}
+        <Route 
+          path="/my-loans" 
+          element={
+            <AuthorizeRoute allowedRoles={['Member', 'Admin']}>
+              <DashboardPage /> {/* Geçici olarak buraya MyLoansPage gelecektir */}
+            </AuthorizeRoute>
+          } 
+        />
+
       
       </Route>
       

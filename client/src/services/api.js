@@ -71,11 +71,18 @@ export const userService = {
 
 
 export const membershipService = {
-  apply: async (applicationDto) => {
+  apply: async (createMembershipApplicationDto) => {
     // Controller ın da [HttpPost("apply")] endpoint'ine POST isteği atar
-    const response = await api.post('/MembershipApplications/apply', applicationDto);
+    const response = await api.post('/MembershipApplications/apply', createMembershipApplicationDto);
     return response.data;
   },
+
+// Dashboard sayfasının durumu okuyabilmesi için eklenmesi gereken metot:
+  getMyStatus: async () => {
+    const response = await api.get('/MembershipApplications/my-application');
+    return response.data;
+  },
+
 };
 
 

@@ -1,9 +1,10 @@
 import React from 'react';
 import { Navigate } from 'react-router-dom';
+import { useAuth } from '../hooks/useAuth';
 
 export default function ProtectedRoute({ children }) {
   // 1. Kullanıcının tarayıcı hafızasından token'ı alıyoruz
-  const token = localStorage.getItem('token');
+  const { token } = useAuth();
 
   // 2. Eğer token yoksa (kimliksiz gelmişse) Login sayfasına geri şutluyoruz
   if (!token) {

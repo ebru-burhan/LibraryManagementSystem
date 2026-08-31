@@ -6,7 +6,10 @@ namespace Library.Business.Abstracts;
 public interface IMembershipApplicationService
 {
     // Kullanıcı başvuru formunu doldurduğunda çalışacak metot
-    Task<IResult> CreateApplicationAsync(int userId, CreateMembershipApplicationDto dto);
+
+    Task<IDataResult<string>> CreateApplicationAsync(int userId, CreateMembershipApplicationDto dto);
+    // IMembershipApplicationService.cs içerisine mevcut sözleşmelerin yanına eklenecek
+   Task<IDataResult<MembershipApplicationDto>> GetByUserIdAsync(int userId);
 
     // İleride adminin başvuruları listeleyeceği metot
     // Task<IDataResult<List<MembershipApplicationDto>>> GetAllPendingApplicationsAsync();

@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using Library.Business.Abstracts;
+﻿using Library.Business.Abstracts;
 using Library.DataAccess.Repositories.Abstracts;
 using Library.Entity.Concrete.Auth;
 using Library.Entity.Concrete.Lookups;
@@ -17,82 +16,105 @@ public class MembershipApplicationManager : IMembershipApplicationService
     public MembershipApplicationManager(IUnitOfWork unitOfWork)
     {
         _unitOfWork = unitOfWork;
-
     }
 
-    public async Task<IResult> CreateApplicationAsync(int userId, CreateMembershipApplicationDto dto)
+    public async Task<IDataResult<string>> CreateApplicationAsync(int userId, CreateMembershipApplicationDto dto)
     {
-        // 1. KORUMA KALKANI: Hukuki onaylar (Frontend false gönderse bile backend reddeder)
-        if (!dto.IsKvkkApproved || !dto.IsTermsAccepted)
+        // 1. İş Kuralları ve Kullanıcıyı Getir
+        var businessResult = await CheckBusinessRulesAsync(userId, dto.IdentityNumber);
+        if (!businessResult.Success)
         {
-            return new ErrorResult("KVKK Aydınlatma Metni ve Kullanım Şartları onaylanmadan başvuru yapılamaz.");
+            return new ErrorDataResult<string>(businessResult.Message);
         }
 
-        var applicationRepository = _unitOfWork.GetRepository<MembershipApplication>();
-        var userRepository = _unitOfWork.GetRepository<User>();
-
-        var user = await userRepository.GetByIdAsync(userId);
-
-        if (user == null)
+        // 2. Lookup Çözümleme
+        var pendingStatusId = await GetPendingStatusIdAsync();
+        if (pendingStatusId == 0)
         {
-            return new ErrorResult("Kullanıcı bulunamadı.");
+            return new ErrorDataResult<string>("Sistemde başvuru durumları tanımlanmamış.");
         }
 
+        var user = businessResult.Data; // Validasyondan geçen kullanıcı verisi
 
-        // 2. KORUMA KALKANI: Spam/Tekrar Önleme (Idempotency)
-        // Aynı kullanıcı daha önce başvuru yapmış mı? (SQL'e EXISTS sorgusu atar, hızlıdır)
-        var hasExistingApp = await applicationRepository.FindAsync(x => x.UserId == userId);
-        if (hasExistingApp.Any())
-        {
-            return new ErrorResult("Sistemde halihazırda bir başvurunuz bulunmaktadır. Lütfen onay sürecini bekleyiniz.");
-        }
-
-        // 3. KORUMA KALKANI: T.C. Kimlik Benzersizliği (Unique Constraint Patlamasını Önleme)
-        // Manager içindeki TC kontrolünü senin repository'deki FindAsync metoduna[cite: 43] göre şöyle yaparız:
-        var existingTcRecords = await applicationRepository.FindAsync(x => x.IdentityNumber == dto.IdentityNumber);
-        if (existingTcRecords.Any())
-        {
-            return new ErrorResult("Bu T.C. Kimlik numarası ile sistemde zaten bir başvuru mevcut.");
-        }
-
-        // 1. Lookup tablosundan 'PENDING' durumunun ID'sini dinamik olarak çekelim
-        var statusRepository = _unitOfWork.GetRepository<MembershipApplicationStatus>();
-        var pendingStatuses = await statusRepository.FindAsync(x => x.Code == Statuses.MembershipApplication.Pending);
-        var pendingStatus = pendingStatuses.FirstOrDefault();
-
-        if (pendingStatus == null)
-        {
-            return new ErrorResult("Sistemde başvuru durumları tanımlanmamış. Lütfen veri tabanı seed işlemlerini kontrol edin.");
-        }
-
-
-        //   DTO'da Ad, Soyad, Email yok
+        // 3. Object Initializer (init-only kısıtlamasını aşmak için tek seferde atama)
         var application = new MembershipApplication
         {
-            // Kullanıcıdan koparılan "Değiştirilemez" arşiv verileri (init korumalı)
             FirstName = user.FirstName,
             LastName = user.LastName,
             Email = user.Email,
-
-            // DTO'dan gelen veriler
             IdentityNumber = dto.IdentityNumber,
-            // DateTime'dan DateOnly'ye Güvenli Çevirim
             DateOfBirth = DateOnly.FromDateTime(dto.DateOfBirth),
             PhoneNumber = dto.PhoneNumber,
             Address = dto.Address,
-            IsKvkkApproved = dto.IsKvkkApproved,
-            IsTermsAccepted = dto.IsTermsAccepted,
-
-            // Sistem atamaları
-            UserId = userId,// Token'dan gelen güvenilir ID
-            ApplicationStatusId = pendingStatus.Id  // Lookups tablosuna göre 'Pending / Bekliyor' durumu
+            UserId = userId,
+            ApplicationStatusId = pendingStatusId
         };
 
-
-        // 6. VERİTABANI İŞLEMİ
-        await applicationRepository.AddAsync(application);
+        // 4. Veri Tabanı İşlemi
+        await _unitOfWork.GetRepository<MembershipApplication>().AddAsync(application);
         await _unitOfWork.CompleteAsync();
 
-        return new SuccessResult("Başvurunuz başarıyla alındı ve onay sürecine girdi.");
+        return new SuccessDataResult<string>(Statuses.MembershipApplication.Pending, "Başvurunuz başarıyla alındı.");
+    }
+
+
+
+
+
+    public async Task<IDataResult<MembershipApplicationDto>> GetByUserIdAsync(int userId)
+    {
+        var applicationRepository = _unitOfWork.GetRepository<MembershipApplication>();
+
+        // Eğer Generic Repository'de Include desteğin varsa ilişkiyi doğrudan dahil edebilirsin:
+        // var applications = await applicationRepository.FindWithIncludeAsync(x => x.UserId == userId, x => x.ApplicationStatus);
+
+        var applications = await applicationRepository.FindAsync(x => x.UserId == userId);
+        var application = applications.OrderByDescending(x => x.Id).FirstOrDefault();
+
+        if (application == null)
+        {
+            return new ErrorDataResult<MembershipApplicationDto>("Kullanıcıya ait başvuru bulunamadı.");
+        }
+
+        // Eğer Include kullanmadıysan, Lookup tablosundan statü kodunu güvenle çekiyoruz:
+        var statusRepository = _unitOfWork.GetRepository<MembershipApplicationStatus>();
+        var status = await statusRepository.GetByIdAsync(application.ApplicationStatusId);
+
+        // Sabitlerden gelen varsayılan statü
+        string statusCode = status?.Code ?? Statuses.MembershipApplication.Pending;
+
+        var dto = new MembershipApplicationDto
+        {
+            Id = application.Id,
+            ApplicationStatus = statusCode // "PENDING", "APPROVED" vb.
+        };
+
+        return new SuccessDataResult<MembershipApplicationDto>(dto, "Başvuru durumu getirildi.");
+    }
+
+
+
+    private async Task<IDataResult<User>> CheckBusinessRulesAsync(int userId, string identityNumber)
+    {
+        var userRepository = _unitOfWork.GetRepository<User>();
+        var applicationRepository = _unitOfWork.GetRepository<MembershipApplication>();
+
+        var user = await userRepository.GetByIdAsync(userId);
+        if (user == null) return new ErrorDataResult<User>("Kullanıcı bulunamadı.");
+
+        var hasExistingApp = await applicationRepository.FindAsync(x => x.UserId == userId);
+        if (hasExistingApp.Any()) return new ErrorDataResult<User>("Sistemde halihazırda bir başvurunuz bulunmaktadır.");
+
+        var existingTcRecords = await applicationRepository.FindAsync(x => x.IdentityNumber == identityNumber);
+        if (existingTcRecords.Any()) return new ErrorDataResult<User>("Bu T.C. Kimlik numarası ile sistemde zaten bir başvuru mevcut.");
+
+        return new SuccessDataResult<User>(user);
+    }
+
+    private async Task<int> GetPendingStatusIdAsync()
+    {
+        var statusRepository = _unitOfWork.GetRepository<MembershipApplicationStatus>();
+        var pendingStatuses = await statusRepository.FindAsync(x => x.Code == Statuses.MembershipApplication.Pending);
+        return pendingStatuses.FirstOrDefault()?.Id ?? 0;
     }
 }

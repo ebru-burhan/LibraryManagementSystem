@@ -25,9 +25,7 @@ public class MembershipApplication : AuditableEntity
     public int UserId { get; set; }
     public User User { get; set; } = null!;
 
-    // Onaylar
-    public bool IsKvkkApproved { get; init; }
-    public bool IsTermsAccepted { get; set; }
+
 
     // Başvuru Durumları İlişkisi (Onay Bekliyor, Onaylandı, Reddedildi vb.)
     public int ApplicationStatusId { get; set; }

@@ -8,4 +8,9 @@ public class RegisterDto
     public string FirstName { get; set; } = null!;
     public string LastName { get; set; } = null!;
 
+
+    // Onaylar (Bunlar true gelmeden işlemi Business katmanında reddedeceğiz)
+    public bool IsKvkkApproved { get; set; }
+    public bool IsTermsAccepted { get; set; }
+
 }

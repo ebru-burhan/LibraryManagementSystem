@@ -23,6 +23,13 @@ public class AuthManager : IAuthService
 
     public async Task<IDataResult<AccessToken>> RegisterAsync(RegisterDto registerDto)
     {
+
+        if (!registerDto.IsKvkkApproved || !registerDto.IsTermsAccepted)
+        {
+            return new ErrorDataResult<AccessToken>("KVKK Aydınlatma Metni ve Kullanım Şartları onaylanmadan başvuru yapılamaz.");
+        }
+
+
         // 1. E-posta kullanımda mı kontrolü
         var userExists = await UserExistsAsync(registerDto.Email);
         if (!userExists.Success)
@@ -33,26 +40,32 @@ public class AuthManager : IAuthService
         // 2. Şifreyi Hashle
         _hashingHelper.CreatePasswordHash(registerDto.Password, out byte[] passwordHash, out byte[] passwordSalt);
 
-        // 3. User Entity'sini oluştur
-        var user = new User
-        {
-            Email = registerDto.Email,
-            PasswordHash = passwordHash,
-            PasswordSalt = passwordSalt,
-            FirstName = registerDto.FirstName,
-            LastName = registerDto.LastName,
-            IsActive = true
-        };
+            // 3. User Entity'sini oluştur
+            var user = new User
+            {
+                Email = registerDto.Email,
+                PasswordHash = passwordHash,
+                PasswordSalt = passwordSalt,
+                FirstName = registerDto.FirstName,
+                LastName = registerDto.LastName,
+                IsActive = true,
+                IsKvkkApproved = true,
+                IsTermsAccepted = true
+            };
 
-        // 4. Veritabanına kaydet
-        await _unitOfWork.GetRepository<User>().AddAsync(user);
-        await _unitOfWork.CompleteAsync();
 
-        //  Token üret (Yeni parametre permission için)
-        var accessToken = _tokenHelper.CreateToken(user, new List<string>(), new List<string>());
+            // 4. Veritabanına kaydet
+            await _unitOfWork.GetRepository<User>().AddAsync(user);
+            await _unitOfWork.CompleteAsync();
 
-        return new SuccessDataResult<AccessToken>(accessToken, "Kayıt işlemi başarıyla tamamlandı.");
-    }
+
+            //  Token üret (Yeni parametre permission için)
+            var accessToken = _tokenHelper.CreateToken(user, new List<string>(), new List<string>());
+
+            return new SuccessDataResult<AccessToken>(accessToken, "Kayıt işlemi başarıyla tamamlandı.");
+        }
+        
+
 
     public async Task<IDataResult<AccessToken>> LoginAsync(LoginDto loginDto)
     {
@@ -124,4 +137,73 @@ public class AuthManager : IAuthService
 
         return new SuccessResult();
     }
+
+
+    public async Task<IResult> ForgotPasswordAsync(ForgotPasswordDto forgotPasswordDto)
+    {
+        // 1. Kullanıcıyı bul (Güncelleme yapacağımız için tracking: true kullanıyoruz)
+        var users = await _unitOfWork.GetRepository<User>()
+            .FindAsync(u => u.Email == forgotPasswordDto.Email, tracking: true);
+
+        var user = users.FirstOrDefault();
+
+        if (user == null)
+        {
+            return new ErrorResult("Bu e-posta adresine kayıtlı kullanıcı bulunamadı.");
+        }
+
+        // 2. Rastgele 6 haneli bir kod üret (Örn: A4B7X9)
+        string resetCode = Guid.NewGuid().ToString().Substring(0, 6).ToUpper();
+
+        // 3. Kullanıcıya kodu ve süresini kaydet (1 saat geçerli)
+        user.PasswordResetCode = resetCode;
+        user.PasswordResetCodeExpiration = DateTime.Now.AddHours(1);
+
+        // 4. Veritabanına yansıt
+        await _unitOfWork.CompleteAsync();
+
+        // Not: Gerçek senaryoda burada mail atılır. Biz testi kolaylaştırmak için kodu API yanıtında dönüyoruz.
+        return new SuccessResult($"Şifre sıfırlama kodu oluşturuldu (Mail atılmış varsayalım). Kodunuz: {resetCode}");
+    }
+
+    public async Task<IResult> ResetPasswordAsync(ResetPasswordDto resetPasswordDto)
+    {
+        // 1. Kullanıcıyı bul
+        var users = await _unitOfWork.GetRepository<User>()
+            .FindAsync(u => u.Email == resetPasswordDto.Email, tracking: true);
+
+        var user = users.FirstOrDefault();
+
+        if (user == null)
+        {
+            return new ErrorResult("Kullanıcı bulunamadı.");
+        }
+
+        // 2. Güvenlik Kontrolleri: Kod eşleşiyor mu ve süresi geçerli mi?
+        if (user.PasswordResetCode != resetPasswordDto.ResetCode)
+        {
+            return new ErrorResult("Sıfırlama kodu hatalı.");
+        }
+
+        if (user.PasswordResetCodeExpiration < DateTime.Now)
+        {
+            return new ErrorResult("Sıfırlama kodunun süresi dolmuş. Lütfen tekrar kod isteyin.");
+        }
+
+        // 3. Yeni Şifreyi Hashle
+        _hashingHelper.CreatePasswordHash(resetPasswordDto.NewPassword, out byte[] passwordHash, out byte[] passwordSalt);
+
+        user.PasswordHash = passwordHash;
+        user.PasswordSalt = passwordSalt;
+
+        // 4. Tek kullanımlık olduğu için kodu ve süresini sıfırla (İptal et)
+        user.PasswordResetCode = null;
+        user.PasswordResetCodeExpiration = null;
+
+        // 5. Veritabanına kaydet
+        await _unitOfWork.CompleteAsync();
+
+        return new SuccessResult("Şifreniz başarıyla güncellendi. Yeni şifrenizle giriş yapabilirsiniz.");
+    }
+
 }
