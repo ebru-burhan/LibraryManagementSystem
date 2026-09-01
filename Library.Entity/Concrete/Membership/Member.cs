@@ -11,6 +11,7 @@ public class Member : AuditableEntity
     public int UserId { get; set; }
     public User User { get; set; } = null!;
 
+    public bool IsActive { get; set; } = true;
 
     public ICollection<Loan> Loans { get; set; } = new List<Loan>();
     public ICollection<Reservation> Reservations { get; set; } = new List<Reservation>();

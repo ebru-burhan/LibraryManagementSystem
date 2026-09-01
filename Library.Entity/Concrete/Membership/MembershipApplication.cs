@@ -16,10 +16,12 @@ public class MembershipApplication : AuditableEntity
     public string IdentityNumber { get; init; } = null!;
     public DateOnly DateOfBirth { get; init; }
 
+    public string? PictureUrl { get; set; }
+
     // İletişim Bilgileri
     public string PhoneNumber { get; init; } = null!;
     public string Email { get; init; } = null!;
-    public string? Address { get; init; }
+    public string Address { get; init; } = null!;
 
     // Hesap Bilgileri
     public int UserId { get; set; }

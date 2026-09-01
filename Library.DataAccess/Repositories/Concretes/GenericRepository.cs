@@ -1,6 +1,7 @@
 ﻿using Library.DataAccess.Contexts;
 using Library.DataAccess.Repositories.Abstracts;
 using Library.Entity.Abstract;
+using Library.Entity.Concrete.Membership;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 
@@ -36,6 +37,10 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class, IEnti
         return await query.ToListAsync();
     }
 
+
+
+
+
     public async Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> predicate, bool tracking = true)
     {
         var query = _dbSet.Where(predicate);
@@ -70,13 +75,13 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class, IEnti
 
     public void Update(T entity)
     {
-        // Eğer nesne sadece oluşturulabilir bir log/audit kaydiyse güncellenemez!
-        if (entity is CreationAuditedEntity)
+        // MembershipApplication veya güncellenebilir iş nesneleri bu kuralın dışına tutulur
+        if (entity is CreationAuditedEntity && !(entity is MembershipApplication))
         {
-            throw new InvalidOperationException("Log ve denetim kayıtları (CreationAuditedEntity) güncellenemez!");
+            throw new InvalidOperationException("Log ve denetim kayıtları güncellenemez!");
         }
-        _dbSet.Update(entity); // Dışarıdan gelen her nesneyi direkt update etmeye çalışır riskk burda!!! 
-        //service de getbyıd ile çek öyle güncelle kaydet. // TODO: başka yol bak var mı
+
+        _dbSet.Update(entity);
     }
 
     public void Delete(T entity)

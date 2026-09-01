@@ -1,5 +1,6 @@
 ﻿using Library.Business.Abstracts;
 using Library.Business.Concretes;
+using Library.Business.Mappings;
 using Library.Business.Security.Hashing;
 using Library.Business.Security.Jwt;
 using Library.DataAccess.Contexts;
@@ -33,7 +34,8 @@ public static class ServiceCollectionExtensions
         //Merkezi Profil Yönetimi :)))
         services.AddAutoMapper(cfg =>
         {
-     
+
+            cfg.AddProfile<MembershipProfile>();
             // İleride modüller eklendikçe buraya tek satır olarak şutlayacağız:
             // cfg.AddProfile<CatalogProfile>();
             // cfg.AddProfile<OperationsProfile>();

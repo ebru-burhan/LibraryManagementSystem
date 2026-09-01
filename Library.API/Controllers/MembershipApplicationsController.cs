@@ -21,22 +21,39 @@ public class MembershipApplicationsController : ControllerBase
     }
 
     [HttpPost("apply")]
-    public async Task<IActionResult> Apply([FromBody] CreateMembershipApplicationDto createMembershipApplicationDto)
+    public async Task<IActionResult> Apply([FromForm] CreateMembershipApplicationDto createMembershipApplicationDto, IFormFile? pictureFile)
     {
-        // 2. KİMLİK TESPİTİ (SİHİRLİ KISIM): Dışarıdan ID almıyoruz!
-        // JWT Token'ın içindeki NameIdentifier (Kullanıcı ID'si) claim'ini yakalıyoruz.
+        // 1. KİMLİK TESPİTİ: JWT Token'dan Kullanıcı ID'sini yakalıyoruz
         var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
         if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out int userId))
         {
-            // Eğer token'da ID yoksa veya bozuksa, 401 Unauthorized (Yetkisiz) dönüyoruz.
             return Unauthorized(new { Message = "Güvenlik ihlali: Geçersiz kullanıcı kimliği." });
         }
 
-        // 3. İŞLEMİ DEVRETME: Token'dan güvenle kopardığımız 'userId'yi ve formdan gelen 'dto'yu Business'a gönderiyoruz.
+        // 2. DOSYA YÜKLEME İŞLEMİ (Eğer resim seçildiyse)
+        if (pictureFile != null && pictureFile.Length > 0)
+        {
+            var fileName = Guid.NewGuid().ToString() + Path.GetExtension(pictureFile.FileName);
+            var uploadPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads/members");
+
+            if (!Directory.Exists(uploadPath))
+                Directory.CreateDirectory(uploadPath);
+
+            var filePath = Path.Combine(uploadPath, fileName);
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await pictureFile.CopyToAsync(stream);
+            }
+
+            // DTO içerisindeki PictureUrl alanına kaydedilen sunucu yolunu atıyoruz
+            createMembershipApplicationDto.PictureUrl = $"/uploads/members/{fileName}";
+        }
+
+        // 3. İŞLEMİ DEVRETME: Token'dan aldığımız 'userId'yi ve güncellenen DTO'yu Business'a gönderiyoruz
         var result = await _membershipApplicationService.CreateApplicationAsync(userId, createMembershipApplicationDto);
 
-        // 4. STANDART YANIT: İşlem başarılıysa HTTP 200 (OK), iş kurallarına (TC çakışması vb.) takıldıysa HTTP 400 dönüyoruz.
+        // 4. STANDART YANIT
         if (result.Success)
         {
             return Ok(result);
@@ -68,6 +85,55 @@ public class MembershipApplicationsController : ControllerBase
         }
 
         // Başvuru yoksa hata döner (Frontend catch bloğuna düşer ve formu çizer)
+        return BadRequest(result);
+    }
+
+    [Authorize(Roles = "Admin")] // Sadece Admin rolüne sahip JWT token'lar buraya girebilir
+    [HttpGet("all-applications")]
+    public async Task<IActionResult> GetAllApplications()
+    {
+        // 1. İŞLEMİ DEVRETME: Doğrudan servisteki metodumuzu çağırıyoruz.
+        var result = await _membershipApplicationService.GetAllApplicationsDetailsAsync();
+
+        // 2. STANDART YANIT: Liste doluysa HTTP 200 (OK), boş veya hatalıysa HTTP 400 (BadRequest) dönüyoruz.
+        if (result.Success)
+        {
+            return Ok(result);
+        }
+
+        return BadRequest(result);
+    }
+
+
+
+    [Authorize(Roles = "Admin")]
+    [HttpPut("{id}/approve")]
+    public async Task<IActionResult> ApproveApplication([FromRoute] int id)
+    {
+        // 1. İŞLEMİ DEVRETME: Route'dan gelen 'id'yi (applicationId) servise gönderiyoruz
+        var result = await _membershipApplicationService.ApproveApplicationAsync(id);
+
+        // 2. STANDART YANIT: Onaylama, üye oluşturma ve rol atama işlemleri tamamen başarılıysa HTTP 200
+        if (result.Success)
+        {
+            return Ok(result);
+        }
+
+        // İş kurallarına takılırsa (zaten onaylı, başvuru yok vs.) HTTP 400
+        return BadRequest(result);
+    }
+
+    [Authorize(Roles = "Admin")]
+    [HttpPut("{id}/reject")]
+    public async Task<IActionResult> RejectApplication([FromRoute] int id)
+    {
+        var result = await _membershipApplicationService.RejectApplicationAsync(id);
+
+        if (result.Success)
+        {
+            return Ok(result);
+        }
+
         return BadRequest(result);
     }
 

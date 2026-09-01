@@ -83,6 +83,24 @@ export const membershipService = {
     return response.data;
   },
 
+  // membershipService içine eklenecekler:
+  getAllApplications: async () => {
+    const response = await api.get('/MembershipApplications/all-applications');
+    return response.data;
+  },
+
+  approveApplication: async (id) => {
+    const response = await api.put(`/MembershipApplications/${id}/approve`);
+    return response.data;
+  },
+
+  rejectApplication: async (id) => {
+    const response = await api.put(`/MembershipApplications/${id}/reject`);
+    return response.data;
+  },
+
+
+
 };
 
 

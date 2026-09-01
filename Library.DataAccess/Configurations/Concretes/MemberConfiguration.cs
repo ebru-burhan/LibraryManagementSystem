@@ -20,6 +20,12 @@ public class MemberConfiguration : AuditableConfiguration<Member>
 
         builder.HasIndex(x => x.MemberNumber).IsUnique();
 
+
+        builder.Property(x => x.IsActive)
+            .IsRequired()
+            .HasDefaultValue(true);
+
+
         //  one to one
         // Her üye bir kullanıcıdır ama her kullanıcı bir üye olmak zorunda değildir
         builder.HasOne(m => m.User)

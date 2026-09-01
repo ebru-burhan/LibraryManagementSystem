@@ -9,7 +9,14 @@ public interface IMembershipApplicationService
 
     Task<IDataResult<string>> CreateApplicationAsync(int userId, CreateMembershipApplicationDto dto);
     // IMembershipApplicationService.cs içerisine mevcut sözleşmelerin yanına eklenecek
-   Task<IDataResult<MembershipApplicationDto>> GetByUserIdAsync(int userId);
+    Task<IDataResult<MembershipApplicationDto>> GetByUserIdAsync(int userId);
+
+    Task<IDataResult<List<MembershipApplicationDto>>> GetAllApplicationsDetailsAsync();
+
+    Task<IResult> ApproveApplicationAsync(int applicationId);
+
+    Task<IResult> RejectApplicationAsync(int applicationId);
+
 
     // İleride adminin başvuruları listeleyeceği metot
     // Task<IDataResult<List<MembershipApplicationDto>>> GetAllPendingApplicationsAsync();

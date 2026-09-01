@@ -10,6 +10,8 @@ import AuthorizeRoute from './routes/AuthorizeRoute';
 import ProtectedRoute from './routes/ProtectedRoute'; 
 import MainLayout from './components/layout/MainLayout';
 
+import MembershipApplicationListAdminPage from './pages/membershipApplication/MembershipApplicationListAdminPage';
+
 export default function App() {
   return (
     <Routes>
@@ -48,11 +50,22 @@ export default function App() {
               <DashboardPage /> {/* Geçici olarak buraya MyLoansPage gelecektir */}
             </AuthorizeRoute>
           } 
-        />
+        />     
 
-      
-      </Route>
-      
+
+        <Route 
+                  path="/applications" 
+                  element={
+                    <AuthorizeRoute allowedRoles={['Admin']}>
+                      <MembershipApplicationListAdminPage />
+                    </AuthorizeRoute>
+                  } 
+                />
+
+
+
+
+      </Route>     
       
     </Routes>
   );

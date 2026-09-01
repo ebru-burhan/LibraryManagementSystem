@@ -2,6 +2,9 @@
 
 public class CreateMembershipApplicationDto
 {
+
+    public string? PictureUrl { get; set; }
+
     // Kişisel Bilgiler
     public string IdentityNumber { get; set; } = null!;
 

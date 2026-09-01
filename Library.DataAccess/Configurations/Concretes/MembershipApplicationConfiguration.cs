@@ -41,7 +41,9 @@ public class MembershipApplicationConfiguration : AuditableConfiguration<Members
             .IsRequired(false)
             .HasMaxLength(500);
 
-
+        builder.Property(x => x.PictureUrl)
+       .HasMaxLength(500)
+       .IsRequired(false);
 
 
         // Başvuru Durumu İlişkisi (one to many)

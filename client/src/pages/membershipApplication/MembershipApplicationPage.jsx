@@ -1,13 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { membershipService } from '../../services/api';
-import { useAuth } from '../../hooks/useAuth'; // Token'dan bilgileri çeken hook
+import { useAuth } from '../../hooks/useAuth';
 import './MembershipApplicationPage.css';
 
 export default function MembershipApplicationPage() {
   const navigate = useNavigate();
-  
-  // useAuth içinden token'da bulunan mevcut kullanıcı bilgilerini çekiyoruz
   const { firstName, lastName, email } = useAuth(); 
 
   const [formData, setFormData] = useState({
@@ -16,6 +14,12 @@ export default function MembershipApplicationPage() {
     phoneNumber: '',
     address: '',
   });
+
+  const [pictureFile, setPictureFile] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState(null);
+
+// Ekstra Belge (Kimlik/PDF vb.) İçin YENİ STATE
+  const [documentFile, setDocumentFile] = useState(null);
 
   const [message, setMessage] = useState(null);
   const [error, setError] = useState(null);
@@ -29,24 +33,43 @@ export default function MembershipApplicationPage() {
     });
   };
 
+const handlePictureChange = (e) => {
+    console.log("Seçilen dosyalar:", e.target.files); // Dosya geliyor mu kontrol edelim
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setPictureFile(file);
+      const url = URL.createObjectURL(file);
+      console.log("Oluşturulan Önizleme URL:", url); // URL üretiliyor mu bakalım
+      setPreviewUrl(url);
+    }
+  };
+
+
+  const handleDocumentChange = (e) => {
+    if (e.target.files && e.target.files[0]) {
+      setDocumentFile(e.target.files[0]);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
     setMessage(null);
 
-    // DTO sadece kullanıcının girdiği eksik bilgileri bekliyor
-    const payload = {
-      identityNumber: formData.identityNumber,
-      dateOfBirth: formData.dateOfBirth,
-      phoneNumber: formData.phoneNumber,
-      address: formData.address,
-    };
+    const data = new FormData();
+    data.append('identityNumber', formData.identityNumber);
+    data.append('dateOfBirth', formData.dateOfBirth);
+    data.append('phoneNumber', formData.phoneNumber);
+    data.append('address', formData.address);
+    
+    if (pictureFile) {
+      data.append('pictureFile', pictureFile);
+    }
 
     try {
-      const response = await membershipService.apply(payload);
+      const response = await membershipService.apply(data);
       
-      // Başarılı olduğunda onay mesajı gösterip Dashboard'a yönlendiriyoruz
       setMessage(response.message || "Başvurunuz başarıyla alındı! Durum paneline yönlendiriliyorsunuz...");
       
       setTimeout(() => {
@@ -67,13 +90,35 @@ export default function MembershipApplicationPage() {
       {error && <div className="alert-error">{error}</div>}
 
       <form onSubmit={handleSubmit}>
-        
+       {/* PROFİL RESMİ VE ÖNİZLEME ALANI */}
+        <div className="input-group">
+          <label>Profil Resmi</label>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginTop: '0.5rem' }}>
+            {/* Önizleme veya Varsayılan Görsel (Her zaman görünür) */}
+            <div className="preview-container" style={{ marginTop: 0 }}>
+              <img 
+                src={previewUrl || "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png"} 
+                alt="Profil Önizleme" 
+                className="preview-image" 
+              />
+            </div>
+            
+            {/* Dosya Seçme Butonu */}
+            <input 
+              type="file" 
+              accept="image/*" 
+              onChange={handlePictureChange} 
+              className="file-input-field"
+            />
+          </div>
+        </div>
+
         {/* SADECE OKUNABİLİR HESAP BİLGİLERİ */}
         <div className="input-group">
           <label>Ad (Hesap Bilgisi)</label>
           <input 
             type="text" 
-            value={firstName || ''} // useAuth'tan gelen değeri basıyoruz
+            value={firstName || ''} 
             disabled 
             className="input-field disabled-input" 
           />
@@ -147,6 +192,20 @@ export default function MembershipApplicationPage() {
             onChange={handleChange} 
             className="input-field"
           />
+        </div>
+
+        <div className="input-group">
+          <label>Ek Dosya</label>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginTop: '0.5rem' }}>
+       
+            {/* Dosya Seçme Butonu */}
+            <input 
+              type="file" 
+              accept="image/*" 
+              onChange={handlePictureChange} //////////////////
+              className="file-input-field"
+            />
+          </div>
         </div>
         
         <button type="submit" disabled={loading} className="submit-btn">
