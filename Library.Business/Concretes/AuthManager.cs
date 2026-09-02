@@ -30,11 +30,23 @@ public class AuthManager : IAuthService
         }
 
 
+        var normalizedUsername = NormalizeUsername(registerDto.Username);
+        if (normalizedUsername is null)
+        {
+            return new ErrorDataResult<AccessToken>("Kullanıcı adı boş olamaz.");
+        }
+
         // 1. E-posta kullanımda mı kontrolü
         var userExists = await UserExistsAsync(registerDto.Email);
         if (!userExists.Success)
         {
             return new ErrorDataResult<AccessToken>(userExists.Message);
+        }
+
+        var usernameTaken = await UsernameExistsAsync(normalizedUsername);
+        if (!usernameTaken.Success)
+        {
+            return new ErrorDataResult<AccessToken>(usernameTaken.Message);
         }
 
         // 2. Şifreyi Hashle
@@ -43,6 +55,7 @@ public class AuthManager : IAuthService
             // 3. User Entity'sini oluştur
             var user = new User
             {
+                Username = normalizedUsername,
                 Email = registerDto.Email,
                 PasswordHash = passwordHash,
                 PasswordSalt = passwordSalt,
@@ -136,6 +149,27 @@ public class AuthManager : IAuthService
         }
 
         return new SuccessResult();
+    }
+
+    private async Task<IResult> UsernameExistsAsync(string username)
+    {
+        var users = await _unitOfWork.GetRepository<User>()
+            .FindAsync(u => u.Username == username, tracking: false);
+
+        if (users.Any())
+        {
+            return new ErrorResult("Bu kullanıcı adı zaten alınmış.");
+        }
+
+        return new SuccessResult();
+    }
+
+    private static string? NormalizeUsername(string? username)
+    {
+        if (string.IsNullOrWhiteSpace(username))
+            return null;
+
+        return username.Trim().ToLowerInvariant();
     }
 
 

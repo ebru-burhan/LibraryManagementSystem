@@ -13,6 +13,8 @@ public interface IMembershipApplicationService
 
     Task<IDataResult<List<MembershipApplicationDto>>> GetAllApplicationsDetailsAsync();
 
+    Task<IDataResult<List<MembershipTypeDto>>> GetMembershipTypesAsync();
+
     Task<IResult> ApproveApplicationAsync(int applicationId);
 
     Task<IResult> RejectApplicationAsync(int applicationId);

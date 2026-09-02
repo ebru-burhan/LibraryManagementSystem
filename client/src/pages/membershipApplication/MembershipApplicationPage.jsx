@@ -67,6 +67,10 @@ const handlePictureChange = (e) => {
       data.append('pictureFile', pictureFile);
     }
 
+    if (documentFile) {
+      data.append('documentFile', documentFile);
+    }
+
     try {
       const response = await membershipService.apply(data);
       
@@ -201,8 +205,8 @@ const handlePictureChange = (e) => {
             {/* Dosya Seçme Butonu */}
             <input 
               type="file" 
-              accept="image/*" 
-              onChange={handlePictureChange} //////////////////
+              accept=".pdf,image/*" 
+              onChange={handleDocumentChange}
               className="file-input-field"
             />
           </div>

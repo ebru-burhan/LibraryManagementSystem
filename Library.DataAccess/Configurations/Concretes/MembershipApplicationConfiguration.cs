@@ -42,8 +42,12 @@ public class MembershipApplicationConfiguration : AuditableConfiguration<Members
             .HasMaxLength(500);
 
         builder.Property(x => x.PictureUrl)
-       .HasMaxLength(500)
-       .IsRequired(false);
+            .HasMaxLength(500)
+            .IsRequired(false);
+
+        builder.Property(x => x.DocumentUrl)
+            .HasMaxLength(500)
+            .IsRequired(false);
 
 
         // Başvuru Durumu İlişkisi (one to many)
@@ -51,6 +55,11 @@ public class MembershipApplicationConfiguration : AuditableConfiguration<Members
             .WithMany() // ApplicationStatus sınıfında List<MembershipApplication> tutmana gerek yok, tek yönlü yeterli
             .HasForeignKey(ma => ma.ApplicationStatusId)
             .OnDelete(DeleteBehavior.Restrict); // Durum silinirse, başvurular etkilenmesin (hata versin)
+
+        builder.HasOne(ma => ma.MembershipType)
+            .WithMany()
+            .HasForeignKey(ma => ma.MembershipTypeId)
+            .OnDelete(DeleteBehavior.Restrict);
 
 
 

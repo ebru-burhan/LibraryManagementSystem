@@ -18,6 +18,9 @@ public class MembershipApplication : AuditableEntity
 
     public string? PictureUrl { get; set; }
 
+    // Kimlik / öğrenci belgesi vb. (staging; onay öncesi başvuruda kalır)
+    public string? DocumentUrl { get; set; }
+
     // İletişim Bilgileri
     public string PhoneNumber { get; init; } = null!;
     public string Email { get; init; } = null!;
@@ -32,4 +35,11 @@ public class MembershipApplication : AuditableEntity
     // Başvuru Durumları İlişkisi (Onay Bekliyor, Onaylandı, Reddedildi vb.)
     public int ApplicationStatusId { get; set; }
     public MembershipApplicationStatus ApplicationStatus { get; set; } = null!;
+
+    // Üyelik türü (öğrenci / akademik / halk) — ödünç kuralları ileride buradan okunur
+    public int MembershipTypeId { get; set; }
+    public MembershipType MembershipType { get; set; } = null!;
+
+    // Onay sonrası oluşan üye kaydı (başvuru henüz onaylanmadıysa null)
+    public Member? Member { get; set; }
 }

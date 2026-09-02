@@ -63,6 +63,7 @@ namespace Library.Business.SeedData
                     {
                         FirstName = "Sistem",
                         LastName = "Admin",
+                        Username = "admin",
                         Email = "admin@lumina.com",
                         IdentityNumber = "11111111111",
                         DateOfBirth = new DateOnly(1990, 1, 1),

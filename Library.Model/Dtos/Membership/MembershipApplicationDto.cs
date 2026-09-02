@@ -5,6 +5,7 @@ public class MembershipApplicationDto
 
     public int Id { get; set; }
     public string? PictureUrl { get; set; }
+    public string? DocumentUrl { get; set; }
 
     // Doğrudan entity'deki property isimleriyle aynı
     public string FirstName { get; set; } = null!;
@@ -20,4 +21,5 @@ public class MembershipApplicationDto
 
     // İsmini daha açıklayıcı ve net yaptık
     public string ApplicationStatus { get; set; } = null!;
+    public string MembershipType { get; set; } = null!;
 }

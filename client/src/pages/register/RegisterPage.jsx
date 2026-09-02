@@ -17,6 +17,7 @@ export default function RegisterPage() {
   const [formData, setFormData] = useState({
     firstName: '', 
     lastName: '', 
+    username: '',
     email: '', 
     password: '',
     confirmPassword: '', 
@@ -54,6 +55,7 @@ export default function RegisterPage() {
     const payload = {
       firstName: formData.firstName,
       lastName: formData.lastName,
+      username: formData.username,
       email: formData.email,
       password: formData.password,
       isKvkkApproved: formData.isKvkkApproved,
@@ -100,6 +102,11 @@ export default function RegisterPage() {
           <div className="input-group">
             <label className="label">Soyad</label>
             <input className="input-field" name="lastName" type="text" placeholder="Örn: Yılmaz" required onChange={handleChange} />
+          </div>
+
+          <div className="input-group">
+            <label className="label">Kullanıcı adı</label>
+            <input className="input-field" name="username" type="text" placeholder="Örn: ahmetyilmaz" required minLength={3} maxLength={50} onChange={handleChange} />
           </div>
 
           <div className="input-group">

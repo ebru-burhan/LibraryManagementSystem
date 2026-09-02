@@ -71,9 +71,13 @@ export const userService = {
 
 
 export const membershipService = {
-  apply: async (createMembershipApplicationDto) => {
-    // Controller ın da [HttpPost("apply")] endpoint'ine POST isteği atar
-    const response = await api.post('/MembershipApplications/apply', createMembershipApplicationDto);
+  apply: async (formData) => {
+    // Sadece bu istek için JSON yerine multipart/form-data kullanıyoruz
+    const response = await api.post('/MembershipApplications/apply', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
     return response.data;
   },
 

@@ -4,6 +4,7 @@ public class CreateMembershipApplicationDto
 {
 
     public string? PictureUrl { get; set; }
+    public string? DocumentUrl { get; set; }
 
     // Kişisel Bilgiler
     public string IdentityNumber { get; set; } = null!;
@@ -16,6 +17,6 @@ public class CreateMembershipApplicationDto
  
     public string Address { get; set; } = null!;
 
-
-    // TODO: status id yok kendi belirlemicek sonucta bekliyor yapıcaz managerda otomatik admin işlem yapcak zaten
+    // Frontend kod gönderir (STUDENT); ID'yi Business lookup'tan çözer.
+    public string MembershipTypeCode { get; set; } = null!;
 }

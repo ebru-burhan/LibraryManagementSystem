@@ -53,6 +53,8 @@ public class AppDbContext : DbContext
     public DbSet<ReservationStatus> ReservationStatuses { get; set; }
     public DbSet<PenaltyType> PenaltyTypes { get; set; }
     public DbSet<BookStatus> BookStatuses { get; set; }
+    public DbSet<MembershipType> MembershipTypes { get; set; }
+    public DbSet<MembershipApplicationStatus> MembershipApplicationStatuses { get; set; }
 
     // 7. System Modülü
     public DbSet<AuditLog> AuditLogs { get; set; }

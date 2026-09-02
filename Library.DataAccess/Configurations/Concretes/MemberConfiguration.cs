@@ -33,6 +33,15 @@ public class MemberConfiguration : AuditableConfiguration<Member>
             .HasForeignKey<Member>(m => m.UserId) // Foreign Key, Member tablosunda durur!
             .OnDelete(DeleteBehavior.Cascade); // Eğer User silinirse, Member kaydı da silinsin
 
+        // Her üye tek bir başvurudan gelir; her başvuru en fazla bir üye üretir.
+        // Restrict: başvuru silinince üye kaydı sessizce yok olmasın.
+        builder.HasOne(m => m.MembershipApplication)
+            .WithOne(ma => ma.Member)
+            .HasForeignKey<Member>(m => m.MembershipApplicationId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasIndex(m => m.MembershipApplicationId).IsUnique();
+
         // Not: Loans, Reservations ve Penalties (one to many) 
         // kendi configuration sınıfları (LoanConfiguration vb.) yazılırken ele alınacak.
     }

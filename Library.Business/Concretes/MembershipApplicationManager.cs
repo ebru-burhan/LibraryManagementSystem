@@ -38,6 +38,11 @@ public class MembershipApplicationManager : IMembershipApplicationService
 
         var pendingStatusId = await GetStatusIdByCodeAsync(Statuses.MembershipApplication.Pending);
 
+        if (string.IsNullOrWhiteSpace(dto.MembershipTypeCode))
+            return new ErrorDataResult<string>("Üyelik türü seçilmeden başvuru yapılamaz.");
+
+        var membershipTypeId = await GetMembershipTypeIdByCodeAsync(dto.MembershipTypeCode);
+
         var user = businessResult.Data;
 
         var application = new MembershipApplication
@@ -51,8 +56,10 @@ public class MembershipApplicationManager : IMembershipApplicationService
             PhoneNumber = dto.PhoneNumber,
             Address = dto.Address,
             PictureUrl = dto.PictureUrl,
+            DocumentUrl = dto.DocumentUrl,
             UserId = userId,
-            ApplicationStatusId = pendingStatusId
+            ApplicationStatusId = pendingStatusId,
+            MembershipTypeId = membershipTypeId
         };
 
         await _applicationRepository.AddAsync(application);
@@ -83,7 +90,10 @@ public class MembershipApplicationManager : IMembershipApplicationService
 
     public async Task<IDataResult<List<MembershipApplicationDto>>> GetAllApplicationsDetailsAsync()
     {
-        var applications = await _applicationRepository.FindAsync(x => true, x => x.ApplicationStatus);
+        var applications = await _applicationRepository.FindAsync(
+            x => true,
+            x => x.ApplicationStatus,
+            x => x.MembershipType);
 
         if (applications == null || !applications.Any())
             return new ErrorDataResult<List<MembershipApplicationDto>>("Hiç başvuru bulunamadı.");
@@ -91,6 +101,26 @@ public class MembershipApplicationManager : IMembershipApplicationService
         var applicationDtos = _mapper.Map<List<MembershipApplicationDto>>(applications);
 
         return new SuccessDataResult<List<MembershipApplicationDto>>(applicationDtos, "Başvuru listesi başarıyla getirildi.");
+    }
+
+    public async Task<IDataResult<List<MembershipTypeDto>>> GetMembershipTypesAsync()
+    {
+        var typeRepository = _unitOfWork.GetRepository<MembershipType>();
+        var types = await typeRepository.GetAllAsync(tracking: false);
+
+        if (types == null || !types.Any())
+            return new ErrorDataResult<List<MembershipTypeDto>>("Üyelik türleri bulunamadı.");
+
+        var dtos = types
+            .OrderBy(x => x.Name)
+            .Select(x => new MembershipTypeDto
+            {
+                Code = x.Code,
+                Name = x.Name
+            })
+            .ToList();
+
+        return new SuccessDataResult<List<MembershipTypeDto>>(dtos);
     }
 
     public async Task<IResult> ApproveApplicationAsync(int applicationId)
@@ -111,6 +141,7 @@ public class MembershipApplicationManager : IMembershipApplicationService
         var newMember = new Member
         {
             UserId = application.UserId,
+            MembershipApplicationId = application.Id,
             MemberNumber = $"LUM-{DateTime.Now.Year}-{application.UserId:D3}",
             IsActive = true
         };
@@ -186,5 +217,18 @@ public class MembershipApplicationManager : IMembershipApplicationService
         }
 
         return status.Id;
+    }
+
+    private async Task<int> GetMembershipTypeIdByCodeAsync(string membershipTypeCode)
+    {
+        var normalizedCode = membershipTypeCode.Trim().ToUpperInvariant();
+        var typeRepository = _unitOfWork.GetRepository<MembershipType>();
+        var types = await typeRepository.FindAsync(x => x.Code == normalizedCode, tracking: false);
+        var membershipType = types.FirstOrDefault();
+
+        if (membershipType == null)
+            throw new InvalidOperationException($"Kritik Hata: '{normalizedCode}' üyelik türü veritabanında bulunamadı!");
+
+        return membershipType.Id;
     }
 }

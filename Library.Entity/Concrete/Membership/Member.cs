@@ -11,6 +11,10 @@ public class Member : AuditableEntity
     public int UserId { get; set; }
     public User User { get; set; } = null!;
 
+    // Üye kaydı, onaylanan başvurudan doğar (bire-bir). FK Member tarafında durur.
+    public int MembershipApplicationId { get; set; }
+    public MembershipApplication MembershipApplication { get; set; } = null!;
+
     public bool IsActive { get; set; } = true;
 
     public ICollection<Loan> Loans { get; set; } = new List<Loan>();

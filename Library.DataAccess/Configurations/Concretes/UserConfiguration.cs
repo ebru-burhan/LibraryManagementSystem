@@ -32,7 +32,13 @@ public class UserConfiguration : AuditableConfiguration<User>
         .IsUnique()
         .HasFilter("[IdentityNumber] IS NOT NULL");
 
-        // Hesap Bilgileri
+        // Hesap Bilgileri — Username hesap rumuzu (kütüphane kartı / görünen kimlik).
+        // Giriş şimdilik e-posta ile; Username Member olmadan da Unique kalır.
+        builder.Property(x => x.Username)
+            .IsRequired()
+            .HasMaxLength(50);
+        builder.HasIndex(x => x.Username).IsUnique();
+
         builder.Property(x => x.Email)
             .IsRequired()
             .HasMaxLength(100);

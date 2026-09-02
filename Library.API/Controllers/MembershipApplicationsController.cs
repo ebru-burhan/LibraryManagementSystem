@@ -21,7 +21,10 @@ public class MembershipApplicationsController : ControllerBase
     }
 
     [HttpPost("apply")]
-    public async Task<IActionResult> Apply([FromForm] CreateMembershipApplicationDto createMembershipApplicationDto, IFormFile? pictureFile)
+    public async Task<IActionResult> Apply(
+        [FromForm] CreateMembershipApplicationDto createMembershipApplicationDto,
+        IFormFile? pictureFile,
+        IFormFile? documentFile)
     {
         // 1. KİMLİK TESPİTİ: JWT Token'dan Kullanıcı ID'sini yakalıyoruz
         var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -31,23 +34,14 @@ public class MembershipApplicationsController : ControllerBase
             return Unauthorized(new { Message = "Güvenlik ihlali: Geçersiz kullanıcı kimliği." });
         }
 
-        // 2. DOSYA YÜKLEME İŞLEMİ (Eğer resim seçildiyse)
         if (pictureFile != null && pictureFile.Length > 0)
         {
-            var fileName = Guid.NewGuid().ToString() + Path.GetExtension(pictureFile.FileName);
-            var uploadPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads/members");
+            createMembershipApplicationDto.PictureUrl = await SaveUploadAsync(pictureFile, "wwwroot/uploads/members");
+        }
 
-            if (!Directory.Exists(uploadPath))
-                Directory.CreateDirectory(uploadPath);
-
-            var filePath = Path.Combine(uploadPath, fileName);
-            using (var stream = new FileStream(filePath, FileMode.Create))
-            {
-                await pictureFile.CopyToAsync(stream);
-            }
-
-            // DTO içerisindeki PictureUrl alanına kaydedilen sunucu yolunu atıyoruz
-            createMembershipApplicationDto.PictureUrl = $"/uploads/members/{fileName}";
+        if (documentFile != null && documentFile.Length > 0)
+        {
+            createMembershipApplicationDto.DocumentUrl = await SaveUploadAsync(documentFile, "wwwroot/uploads/documents");
         }
 
         // 3. İŞLEMİ DEVRETME: Token'dan aldığımız 'userId'yi ve güncellenen DTO'yu Business'a gönderiyoruz
@@ -137,5 +131,22 @@ public class MembershipApplicationsController : ControllerBase
         return BadRequest(result);
     }
 
+    private static async Task<string> SaveUploadAsync(IFormFile file, string relativeFolder)
+    {
+        var extension = Path.GetExtension(file.FileName);
+        var fileName = Guid.NewGuid().ToString() + extension;
+        var uploadPath = Path.Combine(Directory.GetCurrentDirectory(), relativeFolder);
 
+        if (!Directory.Exists(uploadPath))
+            Directory.CreateDirectory(uploadPath);
+
+        var filePath = Path.Combine(uploadPath, fileName);
+        await using (var stream = new FileStream(filePath, FileMode.Create))
+        {
+            await file.CopyToAsync(stream);
+        }
+
+        var publicFolder = relativeFolder.Replace("wwwroot", string.Empty).Replace("\\", "/").Trim('/');
+        return $"/{publicFolder}/{fileName}";
+    }
 }
