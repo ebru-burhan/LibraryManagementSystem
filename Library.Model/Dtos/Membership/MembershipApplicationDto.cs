@@ -4,7 +4,10 @@ public class MembershipApplicationDto
 {
 
     public int Id { get; set; }
+
     public string? PictureUrl { get; set; }
+
+    // Kimlik / öğrenci belgesi vb. (staging; onay öncesi başvuruda kalır)
     public string? DocumentUrl { get; set; }
 
     // Doğrudan entity'deki property isimleriyle aynı

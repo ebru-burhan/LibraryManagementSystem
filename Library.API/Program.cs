@@ -66,6 +66,18 @@ if (app.Environment.IsDevelopment())
 }
 
 
+app.UseStaticFiles(new StaticFileOptions
+{
+    OnPrepareResponse = ctx =>
+    {
+        // React uygulamasının (5173) statik dosyalara (resim, PDF vb.) fetch ile erişebilmesi için CORS izni ekliyoruz
+        ctx.Context.Response.Headers.Append("Access-Control-Allow-Origin", "*");
+        ctx.Context.Response.Headers.Append("Access-Control-Allow-Headers", "*");
+        ctx.Context.Response.Headers.Append("Access-Control-Allow-Methods", "GET");
+    }
+});
+
+
 app.UseHttpsRedirection();
 
 

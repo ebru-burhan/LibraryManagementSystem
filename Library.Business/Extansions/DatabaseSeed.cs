@@ -90,6 +90,18 @@ namespace Library.Business.SeedData
                     }
                 }
 
+                // Üyelik Tiplerini (Membership Types) Seed Et
+                if (!context.Set<MembershipType>().Any())
+                {
+                    context.Set<MembershipType>().AddRange(
+                        new MembershipType { Name = "Öğrenci", Code = "STUDENT" },
+                        new MembershipType { Name = "Akademik Personel", Code = "ACADEMIC" },
+                        new MembershipType { Name = "Sivil/Halk", Code = "PUBLIC" }
+                    );
+
+                    context.SaveChanges();
+                }
+
 
                 // ÜYELİK BAŞVURU DURUMLARINI SEED ET
                 if (!context.Set<MembershipApplicationStatus>().Any())

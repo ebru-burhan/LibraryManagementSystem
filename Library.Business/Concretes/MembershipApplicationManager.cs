@@ -142,7 +142,7 @@ public class MembershipApplicationManager : IMembershipApplicationService
         {
             UserId = application.UserId,
             MembershipApplicationId = application.Id,
-            MemberNumber = $"LUM-{DateTime.Now.Year}-{application.UserId:D3}",
+            MemberNumber = $"UN-{DateTime.Now.Year}-{application.UserId:D3}",
             IsActive = true
         };
         await memberRepository.AddAsync(newMember);
