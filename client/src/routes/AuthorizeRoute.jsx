@@ -2,10 +2,14 @@ import React from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 
-export default function AuthorizeRoute({ children, allowedRoles }) {
-  const { roles } = useAuth();
+export default function AuthorizeRoute({ children, allowedRoles, requiredPermission }) {
+  const { roles, permissions } = useAuth();
 
-  if (allowedRoles && !allowedRoles.some(role => roles.includes(role))) {
+  if (requiredPermission && !permissions.includes(requiredPermission)) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  if (allowedRoles && !allowedRoles.some((role) => roles.includes(role))) {
     return <Navigate to="/membership-apply" replace />;
   }
 

@@ -138,12 +138,13 @@ public class MembershipApplicationManager : IMembershipApplicationService
         _applicationRepository.Update(application);
 
         var memberRepository = _unitOfWork.GetRepository<Member>();
+        var activeMemberStatusId = await GetMemberStatusIdByCodeAsync(Statuses.Member.Active);
         var newMember = new Member
         {
             UserId = application.UserId,
             MembershipApplicationId = application.Id,
-            MemberNumber = $"UN-{DateTime.Now.Year}-{application.UserId:D3}",
-            IsActive = true
+            MemberNumber = $"LUM-{DateTime.Now.Year}-{application.UserId:D3}",
+            StatusId = activeMemberStatusId
         };
         await memberRepository.AddAsync(newMember);
 
@@ -230,5 +231,17 @@ public class MembershipApplicationManager : IMembershipApplicationService
             throw new InvalidOperationException($"Kritik Hata: '{normalizedCode}' üyelik türü veritabanında bulunamadı!");
 
         return membershipType.Id;
+    }
+
+    private async Task<int> GetMemberStatusIdByCodeAsync(string statusCode)
+    {
+        var memberStatusRepository = _unitOfWork.GetRepository<MemberStatus>();
+        var statuses = await memberStatusRepository.FindAsync(x => x.Code == statusCode, tracking: false);
+        var status = statuses.FirstOrDefault();
+
+        if (status == null)
+            throw new InvalidOperationException($"Kritik Hata: '{statusCode}' üye statüsü veritabanında bulunamadı!");
+
+        return status.Id;
     }
 }

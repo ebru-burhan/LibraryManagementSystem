@@ -9,8 +9,9 @@ public interface IGenericRepository<T> where T : class, IEntity
     Task<IEnumerable<T>> GetAllAsync(bool tracking = true);
     Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> predicate, bool tracking = true);
 
-    // Mevcut FindAsync metodunun yanına veya yerine bunu ekle:
     Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> expression, params Expression<Func<T, object>>[] includes);
+
+    IQueryable<T> Query(bool tracking = false);
 
     Task AddAsync(T entity);
     void Update(T entity);

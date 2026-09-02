@@ -21,6 +21,13 @@ public static class Statuses
         public const string Incomplete = "INCOMPLETE";
     }
 
+    public static class Member
+    {
+        public const string Active = "ACTIVE";
+        public const string Passive = "PASSIVE";
+        public const string Suspended = "SUSPENDED";
+    }
+
     public static class Reservation
     {
         public const string Waiting = "WAITING";

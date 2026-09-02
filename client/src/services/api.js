@@ -108,4 +108,31 @@ export const membershipService = {
 };
 
 
+// MEMBERS
+export const memberService = {
+  getAll: async (status = '', search = '') => {
+    const params = {};
+    if (status) params.status = status;
+    if (search) params.search = search;
+    const response = await api.get('/Members/all', { params });
+    return response.data;
+  },
+
+  getMemberById: async (id) => {
+    const response = await api.get(`/Members/${id}`);
+    return response.data;
+  },
+
+  updateMemberStatus: async (id, statusCode) => {
+    const response = await api.put(`/Members/${id}/status`, { statusCode });
+    return response.data;
+  },
+
+  deleteMember: async (id) => {
+    const response = await api.delete(`/Members/${id}`);
+    return response.data;
+  },
+};
+
+
 export default api;

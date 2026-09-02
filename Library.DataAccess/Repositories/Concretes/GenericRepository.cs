@@ -1,7 +1,6 @@
 ﻿using Library.DataAccess.Contexts;
 using Library.DataAccess.Repositories.Abstracts;
 using Library.Entity.Abstract;
-using Library.Entity.Concrete.Membership;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 
@@ -52,9 +51,8 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class, IEnti
 
     public async Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> expression, params Expression<Func<T, object>>[] includes)
     {
-        IQueryable<T> query = _dbSet;
+        IQueryable<T> query = _dbSet.AsNoTracking();
 
-        // Eğer dışarıdan include parametreleri gönderilmişse, bunları sorguya ekle (JOIN işlemi)
         if (includes != null)
         {
             foreach (var include in includes)
@@ -66,7 +64,10 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class, IEnti
         return await query.Where(expression).ToListAsync();
     }
 
-
+    public IQueryable<T> Query(bool tracking = false)
+    {
+        return tracking ? _dbSet.AsQueryable() : _dbSet.AsNoTracking();
+    }
 
     public async Task AddAsync(T entity)
     {
@@ -75,8 +76,9 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class, IEnti
 
     public void Update(T entity)
     {
-        // MembershipApplication veya güncellenebilir iş nesneleri bu kuralın dışına tutulur
-        if (entity is CreationAuditedEntity && !(entity is MembershipApplication))
+        // Salt oluşturma denetimli kayıtlar (AuditLog) güncellenemez.
+        // AuditableEntity iş nesneleri (Member, User, başvuru vb.) güncellenebilir.
+        if (entity is CreationAuditedEntity && entity is not AuditableEntity)
         {
             throw new InvalidOperationException("Log ve denetim kayıtları güncellenemez!");
         }
@@ -86,22 +88,20 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class, IEnti
 
     public void Delete(T entity)
     {
-
-        if (entity is CreationAuditedEntity)
+        if (entity is CreationAuditedEntity && entity is not AuditableEntity)
         {
             throw new InvalidOperationException("Log ve denetim kayıtları (CreationAuditedEntity) silinemez!");
         }
 
         if (entity is AuditableEntity auditableEntity)
         {
-            // Soft Delete: Veriyi silmiyoruz, durumunu güncelliyoruz!
             auditableEntity.IsDeleted = true;
+            auditableEntity.DeletedAt = DateTime.UtcNow;
             auditableEntity.UpdatedAt = DateTime.UtcNow;
             _dbSet.Update(entity);
         }
         else
         {
-            // Hard Delete: Sadece BaseEntity veya ara tablolarsa izin ver
             _dbSet.Remove(entity);
         }
     }

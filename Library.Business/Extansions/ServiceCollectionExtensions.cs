@@ -47,6 +47,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IAuthService, AuthManager>();
         services.AddScoped<IRoleService, RoleManager>();
         services.AddScoped<IMembershipApplicationService, MembershipApplicationManager>();
+        services.AddScoped<IMemberService, MemberManager>();
 
         //JWT - Güvenlik Araçları ve Ayarları
         services.Configure<JwtOptions>(configuration.GetRequiredSection(JwtOptions.SectionName));

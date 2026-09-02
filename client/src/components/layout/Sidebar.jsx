@@ -1,12 +1,13 @@
 import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth'; 
-import { menuItems } from './menuConfig'; 
+import { menuItems } from './menuConfig';
+import { pathPermissions } from '../../auth/routeAccess';
+import { PERMISSIONS } from '../../auth/permissionKeys';
 import './Sidebar.css';
 
 export default function Sidebar() {
   const navigate = useNavigate();
-  // Artık rollerle ve portallarla işimiz yok, sadece yetkileri (permissions) alıyoruz!
   const { permissions } = useAuth(); 
 
   const handleLogout = () => {
@@ -14,31 +15,28 @@ export default function Sidebar() {
     navigate('/');
   };
 
-  // FİLTRE: Menüleri tamamen kullanıcının cebindeki yetkilere göre süzüyoruz
-  const filteredMenus = menuItems.filter(item => {
-    if (!item.requiredPermission) return true;
-    return permissions.includes(item.requiredPermission);
+  const filteredMenus = menuItems.filter((item) => {
+    const requiredPermission = pathPermissions[item.path];
+    if (!requiredPermission) return true;
+    return permissions.includes(requiredPermission);
   });
 
   return (
     <aside className="sidebar">
-      {/* Sabit, tertemiz logo alanı */}
       <div className="sidebar-header">
         <div className="logo-icon">📚</div>
         <div className="logo-text">
           <h2>Lumina Library</h2>
-          <span> Portal</span> {/* İstersen burayı da sabit bir alt yazı yapabiliriz */}
+          <span> Portal</span>
         </div>
       </div>
 
-      {/* "+ New Entry" butonu da artık rol adına değil, doğrudan yetkiye bağlı! */}
-      {permissions.includes('create_book') && (
+      {permissions.includes(PERMISSIONS.CREATE_BOOK) && (
         <div className="sidebar-action" style={{ marginBottom: '24px' }}>
           <button className="new-entry-btn">+ New Entry</button>
         </div>
       )}
 
-      {/* Dinamik Menü Alanı */}
       <nav className="sidebar-nav">
         {filteredMenus.map((menu) => (
           <NavLink key={menu.path} to={menu.path} className="nav-item">
@@ -48,7 +46,6 @@ export default function Sidebar() {
         ))}
       </nav>
 
-      {/* Alt Kısım (Çıkış) */}
       <div className="sidebar-footer">
         <button onClick={handleLogout} className="logout-btn">
           <span className="nav-icon">🚪</span>

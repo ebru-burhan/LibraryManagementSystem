@@ -11,6 +11,9 @@ import ProtectedRoute from './routes/ProtectedRoute';
 import MainLayout from './components/layout/MainLayout';
 
 import MembershipApplicationListAdminPage from './pages/membershipApplication/MembershipApplicationListAdminPage';
+import MemberListAdminPage from './pages/members/MemberListAdminPage';
+import MemberDetailAdminPage from './pages/members/MemberDetailAdminPage';
+import { PERMISSIONS } from './auth/permissionKeys';
 
 export default function App() {
   return (
@@ -53,14 +56,32 @@ export default function App() {
         />     
 
 
-        <Route 
-                  path="/applications" 
-                  element={
-                    <AuthorizeRoute allowedRoles={['Admin']}>
-                      <MembershipApplicationListAdminPage />
-                    </AuthorizeRoute>
-                  } 
-                />
+        <Route
+          path="/applications"
+          element={
+            <AuthorizeRoute requiredPermission={PERMISSIONS.MANAGE_MEMBERS}>
+              <MembershipApplicationListAdminPage />
+            </AuthorizeRoute>
+          }
+        />
+
+        <Route
+          path="/members"
+          element={
+            <AuthorizeRoute requiredPermission={PERMISSIONS.MANAGE_MEMBERS}>
+              <MemberListAdminPage />
+            </AuthorizeRoute>
+          }
+        />
+
+        <Route
+          path="/members/:id"
+          element={
+            <AuthorizeRoute requiredPermission={PERMISSIONS.MANAGE_MEMBERS}>
+              <MemberDetailAdminPage />
+            </AuthorizeRoute>
+          }
+        />
 
 
 

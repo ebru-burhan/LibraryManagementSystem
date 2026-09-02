@@ -139,10 +139,36 @@ namespace Library.Business.SeedData
                     context.SaveChanges();
                 }
 
-
-
-
-
+                if (!context.Set<MemberStatus>().Any())
+                {
+                    context.Set<MemberStatus>().AddRange(
+                        new MemberStatus
+                        {
+                            Code = Statuses.Member.Active,
+                            Name = "Aktif",
+                            Description = "Kütüphane hizmetlerini kullanabilir.",
+                            CreatedAt = DateTime.Now,
+                            ExternalId = Guid.NewGuid()
+                        },
+                        new MemberStatus
+                        {
+                            Code = Statuses.Member.Passive,
+                            Name = "Pasif",
+                            Description = "Üyelik geçici olarak durdurulmuştur.",
+                            CreatedAt = DateTime.Now,
+                            ExternalId = Guid.NewGuid()
+                        },
+                        new MemberStatus
+                        {
+                            Code = Statuses.Member.Suspended,
+                            Name = "Askıya Alınmış",
+                            Description = "Üyelik askıya alınmıştır.",
+                            CreatedAt = DateTime.Now,
+                            ExternalId = Guid.NewGuid()
+                        }
+                    );
+                    context.SaveChanges();
+                }
 
 
                 //  ÖRNEK KİTAPLARI SEED ET
