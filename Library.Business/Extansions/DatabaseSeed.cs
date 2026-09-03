@@ -30,7 +30,7 @@ namespace Library.Business.SeedData
                         {
                             Name = "Admin",
                             Description = "Sistem Yöneticisi",
-                            Permissions = "view_dashboard,manage_members,view_loans,create_book",
+                            Permissions = "view_dashboard,manage_members,view_loans,create_book,view_catalog",
                             CreatedAt = DateTime.Now,
                             ExternalId = Guid.NewGuid()
                         },

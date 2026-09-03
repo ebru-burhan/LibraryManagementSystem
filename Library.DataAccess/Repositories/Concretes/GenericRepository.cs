@@ -64,6 +64,8 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class, IEnti
         return await query.Where(expression).ToListAsync();
     }
 
+    //params yetersiz kaldı bi tabo eklerken iyi de memberın cezalarını ekle ordan loana git falan olmuyordu query kod bunun için bu sayede membermanager da build query yapabildik
+    
     public IQueryable<T> Query(bool tracking = false)
     {
         return tracking ? _dbSet.AsQueryable() : _dbSet.AsNoTracking();

@@ -36,6 +36,8 @@ public static class ServiceCollectionExtensions
         {
 
             cfg.AddProfile<MembershipProfile>();
+            cfg.AddProfile<MemberProfile>();
+            cfg.AddProfile<BookCopyProfile>();
             // İleride modüller eklendikçe buraya tek satır olarak şutlayacağız:
             // cfg.AddProfile<CatalogProfile>();
             // cfg.AddProfile<OperationsProfile>();

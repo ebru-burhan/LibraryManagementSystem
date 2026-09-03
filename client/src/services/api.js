@@ -118,20 +118,39 @@ export const memberService = {
     return response.data;
   },
 
-  getMemberById: async (id) => {
+  getById: async (id) => {
     const response = await api.get(`/Members/${id}`);
     return response.data;
   },
 
-  updateMemberStatus: async (id, statusCode) => {
+  updateStatus: async (id, statusCode) => {
     const response = await api.put(`/Members/${id}/status`, { statusCode });
     return response.data;
   },
 
-  deleteMember: async (id) => {
+  remove: async (id) => {
     const response = await api.delete(`/Members/${id}`);
     return response.data;
   },
+};
+
+
+
+// ... (diğer servisler, authService vs. duruyor)
+
+export const bookService = {
+  getAll: async () => {
+    // '/Books/getall' yerine senin Controller standartın olan '/Books/all' yapıyoruz
+    const response = await api.get('/Books/all'); 
+    return response.data;
+  },
+};
+
+export const bookCopyService = {
+  addBookCopy: async (createBookCopyDto) => {
+    const response = await api.post('/BookCopies/add', createBookCopyDto);
+    return response.data;
+  }
 };
 
 

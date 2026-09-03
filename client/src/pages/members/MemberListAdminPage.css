@@ -193,6 +193,31 @@
   }
 }
 
+
+.member-actions-inline {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  align-items: center;
+}
+.btn-icon {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 6px;
+  color: #6b7280;
+  transition: all 0.2s ease;
+  display: flex;
+}
+.btn-icon:hover { background-color: #f3f4f6; }
+.view-icon:hover { color: #3b82f6; }
+.pause-icon:hover { color: #f59e0b; }
+.play-icon:hover { color: #10b981; }
+.delete-icon:hover { color: #ef4444; background-color: #fef2f2; }
+
+
+
 .admin-alert { padding: 1rem; border-radius: 8px; margin-bottom: 1rem; }
 .admin-alert.success { background: #d1fae5; color: #065f46; }
 .admin-alert.error { background: #fee2e2; color: #991b1b; }

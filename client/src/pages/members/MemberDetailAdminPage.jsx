@@ -90,55 +90,71 @@ export default function MemberDetailAdminPage() {
       </div>
 
       {message.text && <div className={`admin-alert ${message.type}`}>{message.text}</div>}
-
-      <section className="member-profile-card">
+<section className="member-profile-card">
         {member.pictureUrl ? (
           <img src={`${FILE_BASE}${member.pictureUrl}`} alt={member.fullName} />
         ) : (
           <div className="member-profile-fallback">{member.fullName?.slice(0, 1)}</div>
         )}
+        
         <div className="member-profile-info">
-          <div className="member-profile-title">
-            <h2>{member.fullName}</h2>
-            <span className={`member-detail-badge ${statusClass}`}>{member.statusName} Üye</span>
-          </div>
-          <p>ID: {member.memberNumber}{member.membershipType ? ` • ${member.membershipType}` : ''}</p>
-          <div className="member-profile-grid">
+          
+          {/* Üst Kısım: İsim, ID ve Sağdaki Butonlar */}
+          <div className="profile-top-row">
             <div>
+              <div className="member-profile-title">
+                <h2>{member.fullName}</h2>
+                <span className={`member-detail-badge ${statusClass}`}>{member.statusName} Üye</span>
+              </div>
+              <p className="profile-id-text">
+                ID: {member.memberNumber}{member.membershipType ? ` • ${member.membershipType}` : ''}
+              </p>
+            </div>
+
+            {/* Sağ Tarafa Yaslı Aksiyon Butonları */}
+            {canManage && (
+              <div className="profile-actions-inline">
+                {member.status !== 'ACTIVE' && (
+                  <button type="button" className="btn-activate" onClick={() => handleStatusChange('ACTIVE')}>
+                    Aktife Al
+                  </button>
+                )}
+                {member.status !== 'PASSIVE' && (
+                  <button type="button" className="btn-passive" onClick={() => handleStatusChange('PASSIVE')}>
+                    Pasife Al
+                  </button>
+                )}
+                <button type="button" className="btn-delete" onClick={handleDelete}>
+                  Üyeyi Sil
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* Ortadaki Ayırıcı Çizgi */}
+          <hr className="profile-divider" />
+
+          {/* Alt Kısım: Yan Yana İletişim Bilgileri */}
+          <div className="profile-meta-row">
+            <div className="meta-item">
               <span>E-posta</span>
               <strong>{member.email}</strong>
             </div>
-            <div>
+            <div className="meta-item">
               <span>Telefon</span>
               <strong>{member.phone || '—'}</strong>
             </div>
-            <div>
+            <div className="meta-item">
               <span>Kayıt Tarihi</span>
               <strong>{formatDate(member.registrationDate)}</strong>
             </div>
-            <div>
+            <div className="meta-item">
               <span>Adres</span>
               <strong>{member.address || '—'}</strong>
             </div>
           </div>
+          
         </div>
-        {canManage && (
-          <div className="member-profile-actions">
-            {member.status !== 'ACTIVE' && (
-              <button type="button" className="btn-activate" onClick={() => handleStatusChange('ACTIVE')}>
-                Aktife Al
-              </button>
-            )}
-            {member.status !== 'PASSIVE' && (
-              <button type="button" className="btn-passive" onClick={() => handleStatusChange('PASSIVE')}>
-                Pasife Al
-              </button>
-            )}
-            <button type="button" className="btn-delete" onClick={handleDelete}>
-              Üyeyi Sil
-            </button>
-          </div>
-        )}
       </section>
 
       <section className="member-section-card">

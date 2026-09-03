@@ -13,6 +13,10 @@ import MainLayout from './components/layout/MainLayout';
 import MembershipApplicationListAdminPage from './pages/membershipApplication/MembershipApplicationListAdminPage';
 import MemberListAdminPage from './pages/members/MemberListAdminPage';
 import MemberDetailAdminPage from './pages/members/MemberDetailAdminPage';
+
+import CatalogPage from './pages/catalog/CatalogPage'; // Dosya yolunu kendi klasörüne göre düzenleyebilirsin
+import AddBookCopyPage from './pages/bookCopy/AddBookCopyPage';
+
 import { PERMISSIONS } from './auth/permissionKeys';
 
 export default function App() {
@@ -84,9 +88,26 @@ export default function App() {
         />
 
 
+       <Route
+          path="/catalog"
+          element={
+            <AuthorizeRoute requiredPermission={PERMISSIONS.CREATE_BOOK}>
+              <CatalogPage />
+            </AuthorizeRoute>
+          }
+        />
 
 
-      </Route>     
+        <Route
+          path="/book-copies/add"
+          element={
+            <AuthorizeRoute requiredPermission={PERMISSIONS.CREATE_BOOK}>
+              <AddBookCopyPage />
+            </AuthorizeRoute>
+          }
+        />
+
+      </Route>   
       
     </Routes>
   );

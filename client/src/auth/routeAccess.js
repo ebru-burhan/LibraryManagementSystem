@@ -6,4 +6,5 @@ export const pathPermissions = {
   '/members': PERMISSIONS.MANAGE_MEMBERS,
   '/applications': PERMISSIONS.MANAGE_MEMBERS,
   '/my-loans': PERMISSIONS.VIEW_LOANS,
+  '/book-copies/add': PERMISSIONS.CREATE_BOOK,
 };

@@ -18,6 +18,7 @@
   font-weight: 500;
 }
 
+/* KART GENEL AYARLARI */
 .member-profile-card,
 .member-section-card {
   background: #fff;
@@ -28,10 +29,12 @@
   margin-bottom: 1.25rem;
 }
 
+/* === YENİ ÜST PROFIL KARTI TASARIMI === */
 .member-profile-card {
   display: flex;
   gap: 1.5rem;
   align-items: flex-start;
+  border-left: 6px solid #ea580c; /* Turuncu vurgu çizgisi */
 }
 
 .member-profile-card img,
@@ -48,25 +51,42 @@
   align-items: center;
   justify-content: center;
   background: #ffedd5;
-  color: var(--primary-hover);
-  font-size: 1.5rem;
+  color: #ea580c;
+  font-size: 2rem;
   font-weight: 700;
 }
 
 .member-profile-info {
   flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Üst Satır (İsim ve Butonlar) */
+.profile-top-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
 }
 
 .member-profile-title {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  flex-wrap: wrap;
+  margin-bottom: 0.25rem;
 }
 
 .member-profile-title h2 {
   margin: 0;
-  font-size: 1.4rem;
+  font-size: 1.6rem;
+  color: #111827;
+}
+
+.profile-id-text {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #ea580c; 
+  font-weight: 600;
 }
 
 .member-detail-badge {
@@ -75,61 +95,73 @@
   font-size: 0.8rem;
   font-weight: 700;
 }
-
 .badge-active { background: #dbeafe; color: #1d4ed8; }
-.badge-passive { background: #e2e8f0; color: #475569; }
+.badge-passive { background: #f3f4f6; color: #4b5563; }
 .badge-suspended { background: #fee2e2; color: #b91c1c; }
 
-.member-profile-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.9rem 1.5rem;
-  margin-top: 1rem;
-}
-
-.member-profile-grid span {
-  display: block;
-  font-size: 0.75rem;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
-.member-profile-actions {
+.profile-actions-inline {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  min-width: 120px;
+}
+
+.profile-actions-inline button {
+  border-radius: 6px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.85rem;
+  transition: all 0.2s ease;
+}
+
+.btn-activate { background: var(--primary-color); color: #fff; border: none; }
+.btn-passive { background: #fff; border: 1px solid #d1d5db; color: #374151; }
+.btn-passive:hover { background: #f9fafb; }
+.btn-delete { background: #fff; border: 1px solid #ef4444; color: #ef4444; }
+.btn-delete:hover { background: #fef2f2; }
+
+/* Ortadaki Çizgi */
+.profile-divider {
+  border: 0;
+  height: 1px;
+  background-color: #e5e7eb;
+  margin: 1.5rem 0;
+  width: 100%;
+}
+
+/* Alt Satır (Yan Yana Bilgiler - Eşit Dağılım) */
+.profile-meta-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 1.5rem;
+  width: 100%;
+}
+
+.meta-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  flex: 1;
   min-width: 140px;
 }
 
-.member-profile-actions button,
-.btn-activate,
-.btn-passive,
-.btn-delete {
-  border-radius: 8px;
-  padding: 0.55rem 0.8rem;
-  cursor: pointer;
+.meta-item span {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
   font-weight: 600;
+  letter-spacing: 0.05em;
 }
 
-.btn-activate {
-  background: var(--primary-color);
-  color: #fff;
-  border: none;
+.meta-item strong {
+  font-size: 1rem;
+  color: #111827;
+  font-weight: 500;
 }
 
-.btn-passive {
-  background: #fff;
-  border: 1px solid var(--border-color);
-  color: var(--text-main);
-}
-
-.btn-delete {
-  background: #fff;
-  border: 1px solid #ef4444;
-  color: #ef4444;
-}
-
+/* === ALATTAKİ TABLOLAR (SENİN YAZDIĞIN GİBİ KALANLAR) === */
 .member-section-card h3 {
   margin: 0 0 1rem;
 }
@@ -137,6 +169,7 @@
 .admin-alert { padding: 1rem; border-radius: 8px; margin-bottom: 1rem; }
 .admin-alert.success { background: #d1fae5; color: #065f46; }
 .admin-alert.error { background: #fee2e2; color: #991b1b; }
+
 .admin-table { width: 100%; border-collapse: collapse; text-align: left; }
 .admin-table th { background: #f8fafc; padding: 0.85rem; font-size: 0.85rem; color: var(--text-muted); border-bottom: 1px solid var(--border-color); }
 .admin-table td { padding: 0.85rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem; }
@@ -184,11 +217,16 @@
   color: var(--text-muted);
 }
 
+/* MOBİL UYUM */
 @media (max-width: 1024px) {
   .member-profile-card,
-  .member-detail-split,
-  .member-profile-grid {
+  .member-detail-split {
     grid-template-columns: 1fr;
     flex-direction: column;
+  }
+  
+  .profile-top-row {
+    flex-direction: column;
+    gap: 1.5rem;
   }
 }

@@ -19,6 +19,7 @@ public class UsersController : ControllerBase // Dikkat: Controller değil, Cont
     [Authorize(Roles = "Admin")]
     [HttpGet("getall")]
     public async Task<IActionResult> GetAllUsers()
+        //controllerda repo ne işi var!!!!!!!!!! sonra düzeltirim ilk zamnalardan görmek için acele yapılan saçma bişi yine bu sayede daha çok zamanım gidiyor garip bir durum
     {
         var users = await _unitOfWork.GetRepository<User>().GetAllAsync(tracking: false);
 
