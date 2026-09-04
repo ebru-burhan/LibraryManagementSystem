@@ -27,6 +27,7 @@ public class MemberManager : IMemberService
 
     public async Task<IDataResult<MemberDirectoryDto>> GetAllAsync(string? statusCode, string? search)
     {
+        // Kodun bu kısmı senin yazdığınla tamamen aynı, değiştirmiyorum (Sadece GetAll)
         var allStatusCodes = await _memberRepository.Query(tracking: false)
             .Include(m => m.Status)
             .Select(m => m.Status.Code)
@@ -55,7 +56,6 @@ public class MemberManager : IMemberService
             .OrderByDescending(m => m.CreatedAt)
             .ToListAsync();
 
-        // AutoMapper ile listeyi tek satırda dönüştürüyoruz
         var items = _mapper.Map<List<MemberListDto>>(members);
 
         var directory = new MemberDirectoryDto
@@ -70,26 +70,30 @@ public class MemberManager : IMemberService
         return new SuccessDataResult<MemberDirectoryDto>(directory, "Üye listesi getirildi.");
     }
 
-    public async Task<IDataResult<MemberDetailDto>> GetByIdAsync(int id)
+    // DİKKAT: int id -> Guid id oldu. Ve m.Id yerine m.ExternalId arıyoruz!
+    public async Task<IDataResult<MemberDetailDto>> GetByIdAsync(Guid id)
     {
         var member = await BuildMemberQuery(tracking: false)
-            .FirstOrDefaultAsync(m => m.Id == id);
+            .FirstOrDefaultAsync(m => m.ExternalId == id); // ExternalId güvenlik duvarı!
 
         if (member == null)
             return new ErrorDataResult<MemberDetailDto>("Üye bulunamadı.");
 
-        // AutoMapper ile detay kartını tek satırda dönüştürüyoruz
         var detailDto = _mapper.Map<MemberDetailDto>(member);
-
         return new SuccessDataResult<MemberDetailDto>(detailDto, "Üye kartı getirildi.");
     }
 
-    public async Task<IResult> UpdateStatusAsync(int id, string statusCode)
+    // DİKKAT: int id -> Guid id oldu.
+    public async Task<IResult> UpdateStatusAsync(Guid id, string statusCode)
     {
         if (string.IsNullOrWhiteSpace(statusCode))
             return new ErrorResult("Üye durumu boş olamaz.");
 
-        var member = await _memberRepository.GetByIdAsync(id, tracking: true);
+        // Eski _memberRepository.GetByIdAsync() sadece PK (int) alıyordu.
+        // Artık ExternalId'ye göre FindAsync ile buluyoruz.
+        var memberList = await _memberRepository.FindAsync(m => m.ExternalId == id, tracking: true);
+        var member = memberList.FirstOrDefault();
+
         if (member == null)
             return new ErrorResult("Üye bulunamadı.");
 
@@ -107,10 +111,11 @@ public class MemberManager : IMemberService
         return new SuccessResult("Üye durumu güncellendi.");
     }
 
-    public async Task<IResult> DeleteAsync(int id)
+    // DİKKAT: int id -> Guid id oldu.
+    public async Task<IResult> DeleteAsync(Guid id)
     {
         var member = await BuildMemberQuery(tracking: true)
-            .FirstOrDefaultAsync(m => m.Id == id);
+            .FirstOrDefaultAsync(m => m.ExternalId == id); // ExternalId güvenlik duvarı!
 
         if (member == null)
             return new ErrorResult("Üye bulunamadı.");
@@ -130,8 +135,7 @@ public class MemberManager : IMemberService
     }
 
 
-    /// privateeeee--------------------
-
+    /// private metotlar (Hiçbir değişiklik yok, kurgun zaten mükemmel)
     private IQueryable<Member> BuildListQuery(bool tracking)
     {
         return _memberRepository.Query(tracking)

@@ -30,6 +30,8 @@ public class UnitOfWork : IUnitOfWork
 
     // Kaynakları güvenli bir şekilde serbest bırakır (Memory leak önleyici
     //o yüzden Iunitofwork e IAsyncDisposable implment edildi. bi nedeni de bu yani
+    //Tohumlama yaparken yazdığın using (var scope = ...) bloğundaki using anahtar kelimesi,
+    //süslü parantez bittiği an bellek sızıntısı olmasın diye arka planda Dispose metodunu tetikleyen sözdizimsel bir araçtır.
     public async ValueTask DisposeAsync()
     {
         await DisposeAsync(true);

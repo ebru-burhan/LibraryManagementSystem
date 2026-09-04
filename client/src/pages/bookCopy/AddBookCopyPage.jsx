@@ -4,8 +4,6 @@ import './AddBookCopyPage.css';
 
 const AddBookCopyPage = () => {
     const [books, setBooks] = useState([]); 
-    
-    // YENİ: Seçilen kitabın tüm bilgilerini (resim, yazar vb.) tutacak state
     const [selectedBookDetails, setSelectedBookDetails] = useState(null); 
 
     const [formData, setFormData] = useState({
@@ -17,7 +15,7 @@ const AddBookCopyPage = () => {
     useEffect(() => {
         const fetchBooks = async () => {
             try {
-                const result = await bookService.getAllBooks();
+                const result = await bookService.getAll();
                 if (result.success) {
                     setBooks(result.data);
                 }
@@ -29,17 +27,24 @@ const AddBookCopyPage = () => {
         fetchBooks();
     }, []);
 
-    const handleChange = (e) => {
+    const handleChange = async (e) => {
         const { name, value } = e.target;
+        
         setFormData(prevState => ({
             ...prevState,
             [name]: value
         }));
 
-        // YENİ: Eğer değişen alan Dropdown (bookId) ise, kitabın detaylarını bul ve kartı çiz
         if (name === 'bookId') {
-            const selectedBook = books.find(b => b.id === parseInt(value));
-            setSelectedBookDetails(selectedBook);
+            try {
+                const detailResult = await bookService.getById(value);
+                if (detailResult.success) {
+                    setSelectedBookDetails(detailResult.data);
+                }
+            } catch (error) {
+                console.error("Kitap detayı çekilemedi:", error);
+                setSelectedBookDetails(null);
+            }
         }
     };
 
@@ -48,17 +53,17 @@ const AddBookCopyPage = () => {
         
         try {
             const dataToSend = {
-                bookId: parseInt(formData.bookId), 
+                bookId: formData.bookId, 
                 barcode: formData.barcode,
                 shelfLocation: formData.shelfLocation
             };
 
-            const result = await bookCopyService.add(dataToSend);
+            const result = await bookCopyService.addBookCopy(dataToSend);
             
             if(result.success) {
                 alert("Kopya başarıyla eklendi!");
                 setFormData({ bookId: '', barcode: '', shelfLocation: '' }); 
-                setSelectedBookDetails(null); // YENİ: Başarılı kayıttan sonra önizleme kartını temizle
+                setSelectedBookDetails(null); 
             } else {
                 alert("Hata: " + result.message);
             }
@@ -70,7 +75,7 @@ const AddBookCopyPage = () => {
 
     const handleClear = () => {
         setFormData({ bookId: '', barcode: '', shelfLocation: '' });
-        setSelectedBookDetails(null); // Temizle butonuna basınca kartı da uçur
+        setSelectedBookDetails(null); 
     };
 
     return (
@@ -81,26 +86,26 @@ const AddBookCopyPage = () => {
                     <p>Sisteme eklenecek yeni kitap kopyasının lokasyon ve barkod bilgilerini giriniz.</p>
                 </div>
 
-                {/* YENİ: KİTAP ÖNİZLEME KARTI (Sadece kitap seçilince görünür) */}
+                {/* KİTAP ÖNİZLEME KARTI */}
                 {selectedBookDetails && (
-                    <div className="book-preview-card" style={{ display: 'flex', gap: '20px', marginBottom: '30px', padding: '15px', backgroundColor: '#fff4ed', borderRadius: '8px', border: '1px solid #ffe3d1' }}>
+                    <div className="book-preview-card">
                         {/* Kapak Fotoğrafı */}
                         {selectedBookDetails.coverImageUrl ? (
-                            <img src={selectedBookDetails.coverImageUrl} alt="Kapak" style={{ width: '80px', height: '120px', objectFit: 'cover', borderRadius: '4px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }} />
+                            <img src={selectedBookDetails.coverImageUrl} alt="Kapak" className="preview-cover-image" />
                         ) : (
-                            <div style={{ width: '80px', height: '120px', backgroundColor: '#e0e0e0', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', color: '#666' }}>Görsel Yok</div>
+                            <div className="preview-cover-fallback">Görsel Yok</div>
                         )}
                         
                         {/* Kitap Detayları */}
-                        <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-                            <h3 style={{ margin: '0 0 8px 0', color: '#333', fontSize: '18px' }}>{selectedBookDetails.title}</h3>
-                            <p style={{ margin: '0 0 4px 0', fontSize: '14px', color: '#666' }}>
-                                <strong>Yazar(lar):</strong> {selectedBookDetails.authors && selectedBookDetails.authors.length > 0 ? selectedBookDetails.authors.join(', ') : 'Belirtilmemiş'}
+                        <div className="preview-details-container">
+                            <h3 className="preview-title">{selectedBookDetails.title}</h3>
+                            <p className="preview-text">
+                                <strong>Yazar(lar):</strong> {selectedBookDetails.authors && selectedBookDetails.authors.length > 0 ? selectedBookDetails.authors.map(a => a.fullName).join(', ') : 'Belirtilmemiş'}
                             </p>
-                            <p style={{ margin: '0 0 4px 0', fontSize: '14px', color: '#666' }}>
+                            <p className="preview-text">
                                 <strong>Yayınevi:</strong> {selectedBookDetails.publisher} ({selectedBookDetails.publicationYear})
                             </p>
-                            <p style={{ margin: '0', fontSize: '14px', color: '#666' }}>
+                            <p className="preview-text">
                                 <strong>ISBN:</strong> {selectedBookDetails.isbn}
                             </p>
                         </div>
@@ -121,7 +126,7 @@ const AddBookCopyPage = () => {
                                 <option value="" disabled>Lütfen bir kitap seçiniz...</option>
                                 {books.map(book => (
                                     <option key={book.id} value={book.id}>
-                                        {book.title} (ISBN: {book.isbn})
+                                        {book.title}
                                     </option>
                                 ))}
                             </select>

@@ -38,6 +38,7 @@ public static class ServiceCollectionExtensions
             cfg.AddProfile<MembershipProfile>();
             cfg.AddProfile<MemberProfile>();
             cfg.AddProfile<BookCopyProfile>();
+            cfg.AddProfile<BookProfile>();
             // İleride modüller eklendikçe buraya tek satır olarak şutlayacağız:
             // cfg.AddProfile<CatalogProfile>();
             // cfg.AddProfile<OperationsProfile>();
@@ -50,6 +51,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IRoleService, RoleManager>();
         services.AddScoped<IMembershipApplicationService, MembershipApplicationManager>();
         services.AddScoped<IMemberService, MemberManager>();
+        services.AddScoped<IBookService, BookManager>();
+        services.AddScoped<IBookCopyService, BookCopyManager>();
 
         //JWT - Güvenlik Araçları ve Ayarları
         services.Configure<JwtOptions>(configuration.GetRequiredSection(JwtOptions.SectionName));

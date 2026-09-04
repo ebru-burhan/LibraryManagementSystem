@@ -27,8 +27,8 @@ public class MembersController : ControllerBase
         return BadRequest(result);
     }
 
-    [HttpGet("{id:int}")]
-    public async Task<IActionResult> GetById([FromRoute] int id)
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetById([FromRoute] Guid id)
     {
         var result = await _memberService.GetByIdAsync(id);
         if (result.Success)
@@ -37,8 +37,8 @@ public class MembersController : ControllerBase
         return NotFound(result);
     }
 
-    [HttpPut("{id:int}/status")]
-    public async Task<IActionResult> UpdateStatus([FromRoute] int id, [FromBody] UpdateMemberStatusDto dto)
+    [HttpPut("{id}/status")]
+    public async Task<IActionResult> UpdateStatus([FromRoute] Guid id, [FromBody] UpdateMemberStatusDto dto)
     {
         var result = await _memberService.UpdateStatusAsync(id, dto.StatusCode);
         if (result.Success)
@@ -47,8 +47,9 @@ public class MembersController : ControllerBase
         return BadRequest(result);
     }
 
-    [HttpDelete("{id:int}")]
-    public async Task<IActionResult> Delete([FromRoute] int id)
+
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> Delete([FromRoute] Guid id)
     {
         var result = await _memberService.DeleteAsync(id);
         if (result.Success)

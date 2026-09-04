@@ -136,19 +136,50 @@ export const memberService = {
 
 
 
-// ... (diğer servisler, authService vs. duruyor)
-
+// BOOKS
 export const bookService = {
-  getAll: async () => {
-    // '/Books/getall' yerine senin Controller standartın olan '/Books/all' yapıyoruz
-    const response = await api.get('/Books/all'); 
+  // Arama parametresi eklendi
+  getAll: async (search = '') => {
+    const params = {};
+    if (search) params.search = search;
+    const response = await api.get('/Books/all', { params }); 
     return response.data;
   },
+
+  // Yeni eklenen detay getirme (Guid alır)
+  getById: async (id) => {
+    const response = await api.get(`/Books/${id}`);
+    return response.data;
+  },
+
+  // Yeni kitap ekleme (Dikkat: Controller'da sadece [HttpPost] yazıyor, yani route '/Books')
+  add: async (createBookDto) => {
+    const response = await api.post('/Books', createBookDto);
+    return response.data;
+  },
+
+  // Kitap silme (Guid alır)
+  delete: async (id) => {
+    const response = await api.delete(`/Books/${id}`);
+    return response.data;
+  }
 };
 
+// BOOK COPIES
 export const bookCopyService = {
+  
   addBookCopy: async (createBookCopyDto) => {
     const response = await api.post('/BookCopies/add', createBookCopyDto);
+    return response.data;
+  },
+
+  getAll: async () => {
+    const response = await api.get('/BookCopies/all');
+    return response.data;
+  },
+
+  getById: async (id) => {
+    const response = await api.get(`/BookCopies/${id}`);
     return response.data;
   }
 };

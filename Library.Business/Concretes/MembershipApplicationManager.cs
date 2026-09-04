@@ -137,6 +137,17 @@ public class MembershipApplicationManager : IMembershipApplicationService
         application.ApplicationStatusId = approvedStatusId;
         _applicationRepository.Update(application);
 
+
+        // YENİ EKLENECEK KISIM: Başvurudaki iletişim bilgilerini asıl User tablosuna aktar
+        var userRepository = _unitOfWork.GetRepository<User>();
+        var user = await userRepository.GetByIdAsync(application.UserId);
+        if (user != null)
+        {
+            user.PhoneNumber = application.PhoneNumber; // Başvurudaki telefonu güncel telefon yap
+            user.Address = application.Address;         // Başvurudaki adresi güncel adres yap
+            userRepository.Update(user);
+        }
+
         var memberRepository = _unitOfWork.GetRepository<Member>();
         var activeMemberStatusId = await GetMemberStatusIdByCodeAsync(Statuses.Member.Active);
         var newMember = new Member
