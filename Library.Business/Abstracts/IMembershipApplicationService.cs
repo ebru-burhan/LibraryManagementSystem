@@ -15,9 +15,9 @@ public interface IMembershipApplicationService
 
     Task<IDataResult<List<MembershipTypeDto>>> GetMembershipTypesAsync();
 
-    Task<IResult> ApproveApplicationAsync(int applicationId);
+    Task<IResult> ApproveApplicationAsync(Guid applicationId);
 
-    Task<IResult> RejectApplicationAsync(int applicationId);
+    Task<IResult> RejectApplicationAsync(Guid applicationId);
 
 
     // İleride adminin başvuruları listeleyeceği metot

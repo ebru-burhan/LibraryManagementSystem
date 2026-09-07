@@ -102,7 +102,7 @@ public class MembershipApplicationsController : ControllerBase
 
     [Authorize(Roles = "Admin")]
     [HttpPut("{id}/approve")]
-    public async Task<IActionResult> ApproveApplication([FromRoute] int id)
+    public async Task<IActionResult> ApproveApplication([FromRoute] Guid id)
     {
         // 1. İŞLEMİ DEVRETME: Route'dan gelen 'id'yi (applicationId) servise gönderiyoruz
         var result = await _membershipApplicationService.ApproveApplicationAsync(id);
@@ -119,7 +119,7 @@ public class MembershipApplicationsController : ControllerBase
 
     [Authorize(Roles = "Admin")]
     [HttpPut("{id}/reject")]
-    public async Task<IActionResult> RejectApplication([FromRoute] int id)
+    public async Task<IActionResult> RejectApplication([FromRoute] Guid id)
     {
         var result = await _membershipApplicationService.RejectApplicationAsync(id);
 

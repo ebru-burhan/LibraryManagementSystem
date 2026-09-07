@@ -63,13 +63,33 @@ namespace Library.Business.SeedData
                     }
                 }
 
-                // 3. LOOKUP TABLOLARI: ÜYELİK TİPLERİ VE DURUMLARI
                 if (!context.Set<MembershipType>().Any())
                 {
                     context.Set<MembershipType>().AddRange(
-                        new MembershipType { Name = "Öğrenci", Code = MembershipTypes.Student },
-                        new MembershipType { Name = "Akademik Personel", Code = MembershipTypes.Academic },
-                        new MembershipType { Name = "Sivil/Halk", Code = MembershipTypes.Public }
+                        new MembershipType
+                        {
+                            Name = "Öğrenci",
+                            Code = MembershipTypes.Student,
+                            MaxLoanDays = 15,
+                            DailyPenaltyRate = 5.00m,
+                            GracePeriodDays = 3 
+                        },
+                        new MembershipType
+                        {
+                            Name = "Akademik Personel",
+                            Code = MembershipTypes.Academic,
+                            MaxLoanDays = 30,
+                            DailyPenaltyRate = 10.00m,
+                            GracePeriodDays = 7 
+                        },
+                        new MembershipType
+                        {
+                            Name = "Sivil/Halk",
+                            Code = MembershipTypes.Public,
+                            MaxLoanDays = 10,
+                            DailyPenaltyRate = 15.00m,
+                            GracePeriodDays = 1 
+                        }
                     );
                     context.SaveChanges();
                 }

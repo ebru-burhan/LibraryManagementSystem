@@ -19,7 +19,7 @@ public class Member : AuditableEntity
     public int StatusId { get; set; }
     public MemberStatus Status { get; set; } = null!;
 
-    public ICollection<Loan> Loans { get; set; } = new List<Loan>();
-    public ICollection<Reservation> Reservations { get; set; } = new List<Reservation>();
-    public ICollection<Penalty> Penalties { get; set; } = new List<Penalty>();
+    public ICollection<Loan> Loans { get; set; } = [];
+    public ICollection<Reservation> Reservations { get; set; } = [];
+    public ICollection<Penalty> Penalties { get; set; } = [];
 }

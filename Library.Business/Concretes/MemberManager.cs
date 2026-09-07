@@ -45,11 +45,11 @@ public class MemberManager : IMemberService
         {
             var term = search.Trim().ToLower();
             query = query.Where(m =>
-                m.MemberNumber.ToLower().Contains(term) ||
-                m.User.FirstName.ToLower().Contains(term) ||
-                m.User.LastName.ToLower().Contains(term) ||
-                m.User.Email.ToLower().Contains(term) ||
-                (m.User.PhoneNumber != null && m.User.PhoneNumber.ToLower().Contains(term)));
+               m.MemberNumber.Contains(term, StringComparison.OrdinalIgnoreCase) ||
+               m.User.FirstName.Contains(term, StringComparison.OrdinalIgnoreCase) ||
+                m.User.LastName.Contains(term, StringComparison.OrdinalIgnoreCase) ||
+                m.User.Email.Contains(term, StringComparison.OrdinalIgnoreCase) ||
+                (m.User.PhoneNumber != null && m.User.PhoneNumber.Contains(term, StringComparison.OrdinalIgnoreCase)));
         }
 
         var members = await query

@@ -16,7 +16,6 @@ public class MembershipApplicationManager : IMembershipApplicationService
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
 
-    // Sık kullanılan Repository'leri Constructor'da tanımlıyoruz (Global Repository'ler)
     private readonly IGenericRepository<MembershipApplication> _applicationRepository;
     private readonly IGenericRepository<MembershipApplicationStatus> _statusRepository;
 
@@ -25,7 +24,6 @@ public class MembershipApplicationManager : IMembershipApplicationService
         _unitOfWork = unitOfWork;
         _mapper = mapper;
 
-        // Repository'leri sadece bir kez burada oluşturuyoruz
         _applicationRepository = _unitOfWork.GetRepository<MembershipApplication>();
         _statusRepository = _unitOfWork.GetRepository<MembershipApplicationStatus>();
     }
@@ -47,7 +45,6 @@ public class MembershipApplicationManager : IMembershipApplicationService
 
         var application = new MembershipApplication
         {
-           
             FirstName = user.FirstName,
             LastName = user.LastName,
             Email = user.Email,
@@ -70,20 +67,17 @@ public class MembershipApplicationManager : IMembershipApplicationService
 
     public async Task<IDataResult<MembershipApplicationDto>> GetByUserIdAsync(int userId)
     {
-        var applications = await _applicationRepository.FindAsync(x => x.UserId == userId);
+        var applications = await _applicationRepository.FindAsync(
+            x => x.UserId == userId,
+            x => x.ApplicationStatus,
+            x => x.MembershipType);
+
         var application = applications.OrderByDescending(x => x.Id).FirstOrDefault();
 
         if (application == null)
             return new ErrorDataResult<MembershipApplicationDto>("Kullanıcıya ait başvuru bulunamadı.");
 
-        var status = await _statusRepository.GetByIdAsync(application.ApplicationStatusId);
-        string statusCode = status?.Code ?? Statuses.MembershipApplication.Pending;
-
-        var dto = new MembershipApplicationDto
-        {
-            Id = application.Id,
-            ApplicationStatus = statusCode
-        };
+        var dto = _mapper.Map<MembershipApplicationDto>(application);
 
         return new SuccessDataResult<MembershipApplicationDto>(dto, "Başvuru durumu getirildi.");
     }
@@ -123,12 +117,15 @@ public class MembershipApplicationManager : IMembershipApplicationService
         return new SuccessDataResult<List<MembershipTypeDto>>(dtos);
     }
 
-    public async Task<IResult> ApproveApplicationAsync(int applicationId)
+    public async Task<IResult> ApproveApplicationAsync(Guid applicationId)
     {
-        var application = await _applicationRepository.GetByIdAsync(applicationId);
+        var applications = await _applicationRepository.FindAsync(x => x.ExternalId == applicationId, tracking: true);
+        var application = applications.FirstOrDefault();
+
         if (application == null) return new ErrorResult("Belirtilen başvuru bulunamadı.");
 
         var approvedStatusId = await GetStatusIdByCodeAsync(Statuses.MembershipApplication.Approved);
+
         if (approvedStatusId == 0) return new ErrorResult("Sistemde 'Onaylandı' statüsü bulunamadı.");
 
         if (application.ApplicationStatusId == approvedStatusId)
@@ -137,14 +134,12 @@ public class MembershipApplicationManager : IMembershipApplicationService
         application.ApplicationStatusId = approvedStatusId;
         _applicationRepository.Update(application);
 
-
-        // YENİ EKLENECEK KISIM: Başvurudaki iletişim bilgilerini asıl User tablosuna aktar
         var userRepository = _unitOfWork.GetRepository<User>();
         var user = await userRepository.GetByIdAsync(application.UserId);
         if (user != null)
         {
-            user.PhoneNumber = application.PhoneNumber; // Başvurudaki telefonu güncel telefon yap
-            user.Address = application.Address;         // Başvurudaki adresi güncel adres yap
+            user.PhoneNumber = application.PhoneNumber;
+            user.Address = application.Address;
             userRepository.Update(user);
         }
 
@@ -180,12 +175,15 @@ public class MembershipApplicationManager : IMembershipApplicationService
         return new SuccessResult("Başvuru başarıyla onaylandı ve kütüphane üyeliği oluşturuldu.");
     }
 
-    public async Task<IResult> RejectApplicationAsync(int applicationId)
+    public async Task<IResult> RejectApplicationAsync(Guid applicationId)
     {
-        var application = await _applicationRepository.GetByIdAsync(applicationId);
+        var applications = await _applicationRepository.FindAsync(x => x.ExternalId == applicationId, tracking: true);
+        var application = applications.FirstOrDefault();
+
         if (application == null) return new ErrorResult("Belirtilen başvuru bulunamadı.");
 
         var rejectedStatusId = await GetStatusIdByCodeAsync(Statuses.MembershipApplication.Rejected);
+
         if (rejectedStatusId == 0) return new ErrorResult("Sistemde 'Reddedildi' statüsü bulunamadı.");
 
         if (application.ApplicationStatusId == rejectedStatusId)
@@ -197,8 +195,6 @@ public class MembershipApplicationManager : IMembershipApplicationService
         await _unitOfWork.CompleteAsync();
         return new SuccessResult("Başvuru başarıyla reddedildi.");
     }
-
-    // Private Metotlar ---------------------------------------------
 
     private async Task<IDataResult<User>> CheckBusinessRulesAsync(int userId, string identityNumber)
     {
@@ -216,17 +212,11 @@ public class MembershipApplicationManager : IMembershipApplicationService
         return new SuccessDataResult<User>(user);
     }
 
-    // Ortak Status Getirme Metodu (Sadece istenen kodu alır, ID döner)
     private async Task<int> GetStatusIdByCodeAsync(string statusCode)
     {
         var statuses = await _statusRepository.FindAsync(x => x.Code == statusCode);
-        var status = statuses.FirstOrDefault();
-
-        if (status == null)
-        {
-            // 0 dönmek yerine doğrudan hata fırlatıyoruz
-            throw new Exception($"Kritik Hata: '{statusCode}' statüsü veritabanında bulunamadı!");
-        }
+        var status = statuses.FirstOrDefault()
+            ?? throw new Exception($"Kritik Hata: '{statusCode}' statüsü veritabanında bulunamadı!");
 
         return status.Id;
     }
@@ -236,10 +226,8 @@ public class MembershipApplicationManager : IMembershipApplicationService
         var normalizedCode = membershipTypeCode.Trim().ToUpperInvariant();
         var typeRepository = _unitOfWork.GetRepository<MembershipType>();
         var types = await typeRepository.FindAsync(x => x.Code == normalizedCode, tracking: false);
-        var membershipType = types.FirstOrDefault();
-
-        if (membershipType == null)
-            throw new InvalidOperationException($"Kritik Hata: '{normalizedCode}' üyelik türü veritabanında bulunamadı!");
+        var membershipType = types.FirstOrDefault()
+            ?? throw new InvalidOperationException($"Kritik Hata: '{normalizedCode}' üyelik türü veritabanında bulunamadı!");
 
         return membershipType.Id;
     }
@@ -248,10 +236,8 @@ public class MembershipApplicationManager : IMembershipApplicationService
     {
         var memberStatusRepository = _unitOfWork.GetRepository<MemberStatus>();
         var statuses = await memberStatusRepository.FindAsync(x => x.Code == statusCode, tracking: false);
-        var status = statuses.FirstOrDefault();
-
-        if (status == null)
-            throw new InvalidOperationException($"Kritik Hata: '{statusCode}' üye statüsü veritabanında bulunamadı!");
+        var status = statuses.FirstOrDefault()
+            ?? throw new InvalidOperationException($"Kritik Hata: '{statusCode}' üye statüsü veritabanında bulunamadı!");
 
         return status.Id;
     }

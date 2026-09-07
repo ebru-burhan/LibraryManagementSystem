@@ -32,6 +32,6 @@ public class User : AuditableEntity
     public bool IsTermsAccepted { get; set; }
 
     // İlişkiler
-    public ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
+    public ICollection<UserRole> UserRoles { get; set; } = [];
     public Member? Member { get; set; } // kütüphane üyesiyse dolu olur burası
 }

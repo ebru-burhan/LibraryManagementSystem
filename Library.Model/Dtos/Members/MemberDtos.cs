@@ -1,4 +1,4 @@
-﻿namespace Library.Model.Dtos.Members.MemberDtos;
+﻿namespace Library.Model.Dtos.Members;
 
 // 1. Temel Listeleme (Hafif Veri - Sadece Tabloda / Grid'de Gösterilecekler)
 // BaseExternalDto'dan miras aldığı için Guid ExternalId otomatik gelir.
@@ -22,9 +22,9 @@ public class MemberDetailDto : MemberListDto
     public decimal UnpaidDebtAmount { get; set; }
 
     // Üyenin alt koleksiyonları
-    public List<MemberLoanDto> ActiveLoans { get; set; } = new();
-    public List<MemberReservationDto> Reservations { get; set; } = new();
-    public List<MemberPenaltyDto> Penalties { get; set; } = new();
+    public List<MemberLoanDto> ActiveLoans { get; set; } = [];
+    public List<MemberReservationDto> Reservations { get; set; } = [];
+    public List<MemberPenaltyDto> Penalties { get; set; } = [];
 }
 
 // Üye Alt Koleksiyonları İçin DTO'lar 
@@ -62,7 +62,7 @@ public class MemberPenaltyDto : BaseExternalDto
 // 4. Analitik ve Dizin Yönetimi (Dashboard / Sayfalama özeti)
 public class MemberDirectoryDto
 {
-    public List<MemberListDto> Members { get; set; } = new();
+    public List<MemberListDto> Members { get; set; } = [];
     public int TotalCount { get; set; }
     public int ActiveCount { get; set; }
     public int PassiveCount { get; set; }

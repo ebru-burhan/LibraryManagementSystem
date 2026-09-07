@@ -1,9 +1,7 @@
 ﻿namespace Library.Model.Dtos.Membership;
 
-public class MembershipApplicationDto
+public class MembershipApplicationDto : BaseExternalDto
 {
-
-    public int Id { get; set; }
 
     public string? PictureUrl { get; set; }
 
@@ -24,5 +22,5 @@ public class MembershipApplicationDto
 
     // İsmini daha açıklayıcı ve net yaptık
     public string ApplicationStatus { get; set; } = null!;
-    public string MembershipType { get; set; } = null!;
+    public MembershipTypeDto MembershipType { get; set; } = null!;
 }
