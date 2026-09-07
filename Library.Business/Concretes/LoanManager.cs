@@ -1,13 +1,14 @@
 ﻿using AutoMapper;
 using Library.Business.Abstracts;
 using Library.DataAccess.Repositories.Abstracts;
+using Library.Entity.Concrete.Catalog;
 using Library.Entity.Concrete.Lookups;
 using Library.Entity.Concrete.Membership;
 using Library.Entity.Concrete.Operations;
-using Library.Entity.Concrete.Catalog;
 using Library.Entity.Constants;
 using Library.Model.Dtos.Operations;
 using Library.Model.Results;
+using Microsoft.EntityFrameworkCore;
 
 namespace Library.Business.Concretes;
 
@@ -32,14 +33,13 @@ public class LoanManager : ILoanService
 
     public async Task<IResult> CreateLoanAsync(CreateLoanDto createLoanDto)
     {
-    
-        var members = await _memberRepository.FindAsync(
-            m => m.ExternalId == createLoanDto.MemberId,
-            m => m.Status,
-            m => m.MembershipApplication.MembershipType, // Dinamik süre için gerekli
-            m => m.Penalties);
 
-        var member = members.FirstOrDefault();
+        var member = await _memberRepository.Query(tracking: false)
+            .Include(m => m.Status)
+            .Include(m => m.MembershipApplication)
+                .ThenInclude(a => a.MembershipType)
+            .Include(m => m.Penalties)
+            .FirstOrDefaultAsync(m => m.ExternalId == createLoanDto.MemberId);
 
         if (member == null)
             return new ErrorResult("Üye bulunamadı.");
@@ -55,22 +55,20 @@ public class LoanManager : ILoanService
         if (createLoanDto.BookCopyId == null && string.IsNullOrWhiteSpace(createLoanDto.Barcode))
             return new ErrorResult("Lütfen ödünç verilecek kitap için bir ID veya Barkod sağlayın.");
 
-        List<BookCopy> bookCopies;
+        // Query ve Include gücüyle hem takibi (tracking) açıyoruz hem status'ü çekiyoruz
+        var query = _bookCopyRepository.Query(tracking: true)
+            .Include(c => c.Status);
+
+        BookCopy? bookCopy = null;
 
         if (createLoanDto.BookCopyId != null && createLoanDto.BookCopyId != Guid.Empty)
         {
-            bookCopies = (await _bookCopyRepository.FindAsync(
-                c => c.ExternalId == createLoanDto.BookCopyId,
-                c => c.Status)).ToList();
+            bookCopy = await query.FirstOrDefaultAsync(c => c.ExternalId == createLoanDto.BookCopyId);
         }
-        else
+        else if (!string.IsNullOrWhiteSpace(createLoanDto.Barcode))
         {
-            bookCopies = (await _bookCopyRepository.FindAsync(
-                c => c.Barcode == createLoanDto.Barcode,
-                c => c.Status)).ToList();
+            bookCopy = await query.FirstOrDefaultAsync(c => c.Barcode == createLoanDto.Barcode);
         }
-
-        var bookCopy = bookCopies.FirstOrDefault();
 
         if (bookCopy == null)
             return new ErrorResult("Belirtilen kitap kopyası bulunamadı.");
@@ -80,7 +78,7 @@ public class LoanManager : ILoanService
 
         // 4. Dinamik Süre Hesaplama
         var membershipType = member.MembershipApplication.MembershipType;
-        int maxLoanDays = membershipType != null ? membershipType.MaxLoanDays : 15; // Veritabanından gelen dinamik kural
+        int maxLoanDays = membershipType != null ? membershipType.MaxLoanDays : 22; // öğrenci gelmeli
 
         // 5. Veritabanındaki Statü ID'lerini Bulma
         var loanStatuses = await _loanStatusRepository.FindAsync(s => s.Code == Statuses.Loan.Borrowed, tracking: false);
@@ -94,8 +92,8 @@ public class LoanManager : ILoanService
 
         // uı den gelen dto da loandate varsa onu kullanrız yoksa ne zman butona basılırsa 
         var finalLoanDate = createLoanDto.LoanDate ?? DateTime.UtcNow;
-        //beklenen teslim tarihi verilirse o yoksa entity de 15 dedik otomatik 
-        var finalDueDate = createLoanDto.DueDate ?? finalLoanDate.AddDays(maxLoanDays);
+        //beklenen teslim tarihi verilirse o yoksa membertype a göre belirledik 
+        var finalDueDate = finalLoanDate.AddDays(maxLoanDays);
 
 
         // 6. Kayıtları Oluşturma ve Güncelleme

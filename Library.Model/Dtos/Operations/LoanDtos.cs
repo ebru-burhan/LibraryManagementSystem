@@ -13,7 +13,6 @@ public class CreateLoanDto
 
 
     public DateTime? LoanDate { get; set; }
-    public DateTime? DueDate { get; set; }
 }
 
 public class LoanListDto : BaseExternalDto

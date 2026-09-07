@@ -21,6 +21,6 @@ public class Loan : AuditableEntity
     public int StatusId { get; set; }
     public LoanStatus Status { get; set; } = null!;
 
-    public ICollection<Penalty> Penalties { get; set; } = new List<Penalty>();
-    public ICollection<RenewalRequest> RenewalRequests { get; set; } = new List<RenewalRequest>();
+    public ICollection<Penalty> Penalties { get; set; } = [];
+    public ICollection<RenewalRequest> RenewalRequests { get; set; } = [];
 }
