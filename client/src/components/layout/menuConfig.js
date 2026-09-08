@@ -15,8 +15,8 @@ export const menuItems = [
     icon: '📋',
   },
   {
-    title: 'Ödünçlerim',
-    path: '/my-loans',
+    title: 'Ödünçler',
+    path: '/loans',
     icon: '📖',
   },
   {

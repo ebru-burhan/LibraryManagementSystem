@@ -149,6 +149,17 @@ namespace Library.Business.SeedData
                     context.SaveChanges();
                 }
 
+
+                if (!context.Set<PenaltyType>().Any())
+                {
+                    context.Set<PenaltyType>().AddRange(
+                        new PenaltyType { Code = PenaltyTypes.Overdue, Name = "Gecikme", CreatedAt = DateTime.Now, ExternalId = Guid.NewGuid() },
+                        new PenaltyType { Code = PenaltyTypes.Damage, Name = "Hasar", CreatedAt = DateTime.Now, ExternalId = Guid.NewGuid() },
+                        new PenaltyType { Code = PenaltyTypes.Lost, Name = "Kayıp", CreatedAt = DateTime.Now, ExternalId = Guid.NewGuid() }
+                    );
+                    context.SaveChanges();
+                }
+
                 // 5. TEST VERİSİ (Arayüz gelişene kadar süreci denemek için sadece birkaç tane)
                 if (!context.Books.Any())
                 {

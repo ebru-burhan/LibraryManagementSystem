@@ -185,4 +185,36 @@ export const bookCopyService = {
 };
 
 
+
+// LOANS
+export const loanService = {
+  getActiveLoans: async () => {
+    const response = await api.get('/Loans/active');
+    return response.data;
+  },
+  borrowBook: async (createLoanDto) => {
+    const response = await api.post('/Loans/borrow', createLoanDto); 
+    return response.data;
+  },
+
+  returnLoan: async (loanExternalId) => {
+  const response = await api.put(`/Loans/return/${loanExternalId}`);
+  return response.data;
+}
+};
+
+// PENALTIES
+export const penaltyService = {
+  getByMember: async (memberExternalId) => {
+    const response = await api.get(`/Penalties/member/${memberExternalId}`); 
+    return response.data;
+  },
+
+  payPenalty: async (penaltyExternalId) => {
+    const response = await api.put(`/Penalties/pay/${penaltyExternalId}`);
+    return response.data;
+  },
+};
+
+
 export default api;

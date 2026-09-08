@@ -75,7 +75,7 @@ public class MembershipApplicationManager : IMembershipApplicationService
         var application = applications.OrderByDescending(x => x.Id).FirstOrDefault();
 
         if (application == null)
-            return new ErrorDataResult<MembershipApplicationDto>("Kullanıcıya ait başvuru bulunamadı.");
+            return new SuccessDataResult<MembershipApplicationDto>(null!, "Henüz bir başvurunuz bulunmamaktadır.");
 
         var dto = _mapper.Map<MembershipApplicationDto>(application);
 

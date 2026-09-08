@@ -13,7 +13,7 @@ export default function MembershipApplicationPage() {
     dateOfBirth: '',
     phoneNumber: '',
     address: '',
-    membershipTypeCode: 'STUDENT' // <-- Burayı ekle
+    membershipTypeCode: ''
   });
 
   const [pictureFile, setPictureFile] = useState(null);
@@ -64,9 +64,8 @@ const handlePictureChange = (e) => {
     data.append('phoneNumber', formData.phoneNumber);
     data.append('address', formData.address);
     
-    // 1. BACKEND'İN İSTEDİĞİ EKSİK ALAN EKLENİYOR
-    // Şimdilik testi geçmek için sabit bir kod gönderiyoruz (Sisteminde STUDENT, PUBLIC vb. ne tanımlıysa)
-    data.append('MembershipTypeCode', 'STUDENT');
+    data.append('MembershipTypeCode', formData.membershipTypeCode);
+    
     if (pictureFile) {
       data.append('pictureFile', pictureFile);
     }
@@ -162,6 +161,7 @@ const handlePictureChange = (e) => {
     className="input-field"
     required
   >
+    <option value="" disabled>Lütfen Üyelik Tipi Seçiniz...</option>
     <option value="STUDENT">Öğrenci</option>
     <option value="ACADEMIC">Akademik Personel</option>
     <option value="PUBLIC">Sivil / Halk</option>

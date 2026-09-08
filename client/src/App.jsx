@@ -5,6 +5,7 @@ import LoginPage from './pages/login/LoginPage';
 import RegisterPage from './pages/register/RegisterPage';
 import DashboardPage from './pages/dashboard/DashboardPage';
 import MembershipApplicationPage from "./pages/membershipApplication/MembershipApplicationPage";
+import LoanListAdminPage from './pages/loans/LoanListAdminPage';
 // Güvenlik görevlisinin adresi routes klasörü olarak güncellendi
 import AuthorizeRoute from './routes/AuthorizeRoute';
 import ProtectedRoute from './routes/ProtectedRoute'; 
@@ -50,15 +51,14 @@ export default function App() {
       {/* Sadece onaylı Member veya Admin rolüne sahip olanlar erişebilir */}
       
         {/* Sadece 'Member' veya 'Admin' yetkisi olanlar görebilir, aksi takdirde membership-apply'a atılır */}
-        <Route 
-          path="/my-loans" 
-          element={
-            <AuthorizeRoute allowedRoles={['Member', 'Admin']}>
-              <DashboardPage /> {/* Geçici olarak buraya MyLoansPage gelecektir */}
-            </AuthorizeRoute>
-          } 
-        />     
-
+        <Route
+            path="/loans"
+            element={
+              <AuthorizeRoute requiredPermission={PERMISSIONS.VIEW_LOANS}>
+                <LoanListAdminPage />
+              </AuthorizeRoute>
+            }
+        />
 
         <Route
           path="/applications"

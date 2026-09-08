@@ -45,7 +45,7 @@ public class MemberProfile : Profile
             .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.User.Address ?? src.MembershipApplication.Address))
             .ForMember(dest => dest.PictureUrl, opt => opt.MapFrom(src => src.MembershipApplication.PictureUrl))
             .ForMember(dest => dest.UnpaidDebtAmount, opt => opt.MapFrom(src => src.Penalties.Where(p => !p.IsPaid).Sum(p => p.Amount)))
-
+            .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreatedAt))
             .ForMember(dest => dest.ActiveLoans, opt => opt.MapFrom(src => src.Loans.Where(l => l.ReturnDate == null).OrderByDescending(l => l.LoanDate)))
             .ForMember(dest => dest.Reservations, opt => opt.MapFrom(src => src.Reservations.Where(r => r.Status.Code == Statuses.Reservation.Waiting).OrderBy(r => r.QueueNumber)))
             .ForMember(dest => dest.Penalties, opt => opt.MapFrom(src => src.Penalties.OrderByDescending(p => p.CreatedAt)));

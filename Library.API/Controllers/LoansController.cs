@@ -28,4 +28,26 @@ public class LoansController : ControllerBase
 
         return BadRequest(result);
     }
+
+
+    [HttpGet("active")]
+    public async Task<IActionResult> GetActiveLoans()
+    {
+        var result = await _loanService.GetActiveLoansAsync();
+        if (result.Success)
+        {
+            return Ok(result);
+        }
+
+        return BadRequest(result);
+    }
+
+    [HttpPut("return/{externalId}")]
+    public async Task<IActionResult> ReturnBook(Guid externalId)
+    {
+        var result = await _loanService.ReturnLoanAsync(externalId);
+        if (result.Success) return Ok(result);
+        return BadRequest(result);
+    }
+
 }

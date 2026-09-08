@@ -2,6 +2,7 @@ using Library.Business.Abstracts;
 using Library.Model.Dtos.Members;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace Library.API.Controllers;
 
@@ -57,4 +58,5 @@ public class MembersController : ControllerBase
 
         return BadRequest(result);
     }
+
 }

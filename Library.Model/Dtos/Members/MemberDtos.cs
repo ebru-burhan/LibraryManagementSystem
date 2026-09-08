@@ -18,7 +18,7 @@ public class MemberDetailDto : MemberListDto
     // Üyelik tarihi (ChangeTracker'ın otomatik atadığı Auditable alan)
     public DateTime CreatedAt { get; set; }
     public string? Address { get; set; }
-    public string? PictureUrl { get; set; }
+    public string? PictureUrl { get; set; } // bunu sanırım applicationdan alalım 
     public decimal UnpaidDebtAmount { get; set; }
 
     // Üyenin alt koleksiyonları

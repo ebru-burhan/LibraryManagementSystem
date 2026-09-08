@@ -39,14 +39,11 @@ public static class ServiceCollectionExtensions
             cfg.AddProfile<MemberProfile>();
             cfg.AddProfile<BookCopyProfile>();
             cfg.AddProfile<BookProfile>();
+            cfg.AddProfile<PenaltyProfile>();
 
-            // İleride modüller eklendikçe buraya tek satır olarak şutlayacağız:
-            // cfg.AddProfile<CatalogProfile>();
-            // cfg.AddProfile<OperationsProfile>();
+
         });
 
-        // (Business Services)
-        // Dışarıdan IAuthService istendiğinde ona AuthManager ver (Dependency Inversion)
         // TODO: service manager ve mappingleri eklemeyi unutmaaaa!!!!!!
         services.AddScoped<IAuthService, AuthManager>();
         services.AddScoped<IRoleService, RoleManager>();
@@ -55,6 +52,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IBookService, BookManager>();
         services.AddScoped<IBookCopyService, BookCopyManager>();
         services.AddScoped<ILoanService, LoanManager>();
+        services.AddScoped<IPenaltyService, PenaltyManager>();
 
         //JWT - Güvenlik Araçları ve Ayarları
         services.Configure<JwtOptions>(configuration.GetRequiredSection(JwtOptions.SectionName));
