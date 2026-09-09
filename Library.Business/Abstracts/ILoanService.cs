@@ -6,7 +6,7 @@ namespace Library.Business.Abstracts;
 public interface ILoanService
 {
     Task<IResult> CreateLoanAsync(CreateLoanDto createLoanDto);
-    Task<IResult> ReturnLoanAsync(Guid loanExternalId);
+    Task<IResult> ReturnLoanAsync(Guid loanExternalId, ReturnLoanDto dto);
 
     Task<IDataResult<List<LoanListDto>>> GetActiveLoansAsync();
 }

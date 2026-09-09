@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using Library.Entity.Concrete.Operations;
-using Library.Model.Dtos.Penalties;
+using Library.Model.Dtos.Operations;
 
 namespace Library.Business.Mappings;
 

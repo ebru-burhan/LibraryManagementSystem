@@ -197,8 +197,8 @@ export const loanService = {
     return response.data;
   },
 
-  returnLoan: async (loanExternalId) => {
-  const response = await api.put(`/Loans/return/${loanExternalId}`);
+  returnLoan: async (id, dto) => {
+  const response = await api.put(`/Loans/return/${id}`, dto);
   return response.data;
 }
 };

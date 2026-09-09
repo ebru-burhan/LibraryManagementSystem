@@ -41,3 +41,9 @@ public class LoanDetailDto : LoanListDto
     // Eğer iade gecikmişse, anlık hesaplanacak ceza tutarı (Modül 9'a hazırlık)
     public decimal CurrentPenaltyAmount { get; set; }
 }
+
+public class ReturnLoanDto
+{
+    public bool IsDamaged { get; set; }
+    public decimal? DamageAmount { get; set; }
+}

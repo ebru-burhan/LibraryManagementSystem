@@ -13,6 +13,12 @@ export default function LoanListAdminPage() {
   const [selectedLoanId, setSelectedLoanId] = useState(null);
   const [bookValue, setBookValue] = useState('');
 
+  // İade & Kondisyon Modal State'leri
+  const [showReturnModal, setShowReturnModal] = useState(false);
+  const [returnLoanId, setReturnLoanId] = useState(null);
+  const [isDamaged, setIsDamaged] = useState(false);
+  const [damageAmount, setDamageAmount] = useState('');
+
   useEffect(() => {
     fetchLoans();
   }, []);
@@ -33,28 +39,45 @@ export default function LoanListAdminPage() {
     }
   };
 
-  const handleReturn = async (id) => {
-    if (window.confirm("Bu kitabın iadesini almak istediğinize emin misiniz?")) {
-      try {
-        const response = await loanService.returnLoan(id);
-        if (response.success) {
-          alert(response.message);
-          fetchLoans();
-        }
-      } catch (err) {
-        alert("İade işlemi sırasında bir hata oluştu.");
+  // İade Modalını Aç
+  const openReturnModal = (id) => {
+    setReturnLoanId(id);
+    setIsDamaged(false);
+    setDamageAmount('');
+    setShowReturnModal(true);
+  };
+
+  // İade İşlemini Onayla ve Gönder
+  const handleReturnSubmit = async () => {
+    if (isDamaged && (!damageAmount || isNaN(damageAmount) || Number(damageAmount) <= 0)) {
+      alert("Lütfen geçerli bir hasar bedeli giriniz.");
+      return;
+    }
+
+    try {
+      const dto = {
+        isDamaged: isDamaged,
+        damageAmount: isDamaged ? Number(damageAmount) : null
+      };
+
+      const response = await loanService.returnLoan(returnLoanId, dto);
+      if (response.success) {
+        alert(response.message);
+        setShowReturnModal(false);
+        fetchLoans();
       }
+    } catch (err) {
+      alert(err.response?.data?.message || "İade işlemi sırasında bir hata oluştu.");
     }
   };
 
-  // Modal Açma
+  // Kayıp Modal Açma
   const openLostModal = (id) => {
     setSelectedLoanId(id);
     setBookValue('');
     setShowLostModal(true);
   };
 
-  // Modal Gönderme
   const handleLostSubmit = async () => {
     if (!bookValue || isNaN(bookValue) || Number(bookValue) <= 0) {
       alert("Lütfen geçerli bir kitap bedeli giriniz.");
@@ -70,7 +93,7 @@ export default function LoanListAdminPage() {
       if (response.success) {
         alert(response.message);
         setShowLostModal(false);
-        fetchLoans(); // Listeyi yenile ki kitap "Aktif Ödünçler"den düşsün
+        fetchLoans();
       }
     } catch (err) {
       alert(err.response?.data?.message || "Kayıp bildirimi başarısız oldu.");
@@ -144,7 +167,7 @@ export default function LoanListAdminPage() {
                       </td>
                       <td>
                         <div className="loan-action-buttons">
-                          <button className="btn-return" onClick={() => handleReturn(loan.id)}>
+                          <button className="btn-return" onClick={() => openReturnModal(loan.id)}>
                             İade Al
                           </button>
                           <button className="btn-return btn-lost" onClick={() => openLostModal(loan.id)}>
@@ -162,6 +185,50 @@ export default function LoanListAdminPage() {
               )}
             </tbody>
           </table>
+        </div>
+      )}
+
+      {/* İADE & KONDİSYON MODALI */}
+      {showReturnModal && (
+        <div className="lost-modal-overlay">
+          <div className="lost-modal-content">
+            <h3>Kitap İade İşlemi</h3>
+            <p className="lost-modal-desc">
+              Lütfen kitabın fiziksel kondisyonunu kontrol edip uygun durumu seçiniz.
+            </p>
+            
+            <div className="lost-modal-form-group">
+              <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', marginBottom: '12px' }}>
+                <input 
+                  type="checkbox" 
+                  checked={isDamaged} 
+                  onChange={(e) => setIsDamaged(e.target.checked)}
+                  style={{ width: '18px', height: '18px' }}
+                />
+                <span style={{ fontWeight: '600', color: '#b91c1c' }}>Kitap Hasarlı / Kusurlu</span>
+              </label>
+
+              {isDamaged && (
+                <div style={{ marginTop: '8px' }}>
+                  <label>Hasar Bedeli (₺)</label>
+                  <input 
+                    type="number" 
+                    value={damageAmount} 
+                    onChange={(e) => setDamageAmount(e.target.value)}
+                    placeholder="Örn: 100.00"
+                  />
+                  <small style={{ color: '#6b7280', display: 'block', marginTop: '4px' }}>
+                    Kitap otomatik olarak 'Tamirde' (In Repair) statüsüne alınacaktır.
+                  </small>
+                </div>
+              )}
+            </div>
+
+            <div className="lost-modal-actions">
+              <button className="btn-cancel" onClick={() => setShowReturnModal(false)}>İptal</button>
+              <button className="btn-confirm-lost" onClick={handleReturnSubmit}>İadeyi Tamamla</button>
+            </div>
+          </div>
         </div>
       )}
 

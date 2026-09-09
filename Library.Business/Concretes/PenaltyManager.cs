@@ -3,7 +3,7 @@ using Library.Business.Abstracts;
 using Library.DataAccess.Repositories.Abstracts;
 using Library.Entity.Concrete.Operations;
 using Library.Entity.Constants;
-using Library.Model.Dtos.Penalties;
+using Library.Model.Dtos.Operations;
 using Library.Model.Results;
 using Microsoft.EntityFrameworkCore;
 

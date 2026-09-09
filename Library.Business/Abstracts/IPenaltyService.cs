@@ -1,5 +1,5 @@
 ﻿using Library.Model.Results;
-using Library.Model.Dtos.Penalties; // Birazdan bu DTO'yu oluşturacağız
+using Library.Model.Dtos.Operations; // Birazdan bu DTO'yu oluşturacağız
 
 namespace Library.Business.Abstracts;
 

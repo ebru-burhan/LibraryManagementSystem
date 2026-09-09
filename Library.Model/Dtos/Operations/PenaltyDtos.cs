@@ -1,6 +1,6 @@
-﻿using Library.Model.Dtos.Members;
+﻿
 
-namespace Library.Model.Dtos.Penalties;
+namespace Library.Model.Dtos.Operations;
 
 public class PenaltyListDto
 {

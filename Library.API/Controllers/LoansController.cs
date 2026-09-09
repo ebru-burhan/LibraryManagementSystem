@@ -43,9 +43,9 @@ public class LoansController : ControllerBase
     }
 
     [HttpPut("return/{externalId}")]
-    public async Task<IActionResult> ReturnBook(Guid externalId)
+    public async Task<IActionResult> ReturnBook(Guid externalId, [FromBody] ReturnLoanDto dto)
     {
-        var result = await _loanService.ReturnLoanAsync(externalId);
+        var result = await _loanService.ReturnLoanAsync(externalId, dto);
         if (result.Success) return Ok(result);
         return BadRequest(result);
     }

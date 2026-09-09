@@ -124,9 +124,8 @@ public class LoanManager : ILoanService
         return new SuccessResult($"Kitap başarıyla ödünç verildi. Teslim Tarihi: {newLoan.DueDate:dd.MM.yyyy}");
     }
 
-    public async Task<IResult> ReturnLoanAsync(Guid loanExternalId)
+    public async Task<IResult> ReturnLoanAsync(Guid loanExternalId, ReturnLoanDto dto)
     {
-        //TODO: burda hesap yapması onun görevi değil sanki ama bak bakalım sonra olmadı.
         // 1. İlgili ödünç kaydını Üye, Üyelik Tipi ve Kitap Kopyası ile birlikte getir
         var loan = await _loanRepository.Query(tracking: true)
             .Include(l => l.Member)
@@ -144,18 +143,18 @@ public class LoanManager : ILoanService
         // 2. İade işlemini gerçekleştir
         loan.ReturnDate = DateTime.UtcNow;
 
-        // 3. Gecikme ve Ceza Hesaplama Motoru
         var membershipType = loan.Member.MembershipApplication.MembershipType;
         int delayDays = (loan.ReturnDate.Value.Date - loan.DueDate.Date).Days;
 
-        decimal penaltyAmount = 0;
+        decimal totalPenaltyAmount = 0;
+        var penaltyMessages = new List<string>();
 
-        // Tolerans süresi (GracePeriodDays) aşıldıysa ceza kesilir
+        // --- 3. A: GECİKME CEZASI HESAPLAMA MOTORU ---
         if (delayDays > membershipType.GracePeriodDays)
         {
-            // Tolerans süresini düşerek adil bir ceza hesaplaması yapıyoruz
             int penalizableDays = delayDays - membershipType.GracePeriodDays;
-            penaltyAmount = penalizableDays * membershipType.DailyPenaltyRate;
+            decimal overdueAmount = penalizableDays * membershipType.DailyPenaltyRate;
+            totalPenaltyAmount += overdueAmount;
 
             var penaltyTypeId = await GetPenaltyTypeIdByCodeAsync(PenaltyTypes.Overdue);
 
@@ -164,28 +163,63 @@ public class LoanManager : ILoanService
                 MemberId = loan.MemberId,
                 LoanId = loan.Id,
                 PenaltyTypeId = penaltyTypeId,
-                Amount = penaltyAmount,
+                Amount = overdueAmount,
                 IsPaid = false
-                // CreatedAt ve ExternalId, BaseEntity/SaveChanges interceptor'dan otomatik gelmiyorsa burada set edebilirsin
             };
 
             await _unitOfWork.GetRepository<Penalty>().AddAsync(penalty);
+            penaltyMessages.Add($"{delayDays} gün gecikme sebebiyle {overdueAmount:C2}");
         }
 
-        // 4. Statüleri Güncelle (Lookup tablolarından kodlara göre ID'leri çek)
+        // --- 3. B: HASAR CEZASI HESAPLAMA MOTORU ---
+        if (dto.IsDamaged)
+        {
+            decimal damageAmount = dto.DamageAmount ?? 0;
+            if (damageAmount <= 0)
+                return new ErrorResult("Hasarlı kitaplar için lütfen geçerli bir hasar bedeli giriniz.");
+
+            totalPenaltyAmount += damageAmount;
+
+            var damagePenaltyTypeId = await GetPenaltyTypeIdByCodeAsync(PenaltyTypes.Damage);
+
+            var damagePenalty = new Penalty
+            {
+                MemberId = loan.MemberId,
+                LoanId = loan.Id,
+                PenaltyTypeId = damagePenaltyTypeId,
+                Amount = damageAmount,
+                IsPaid = false
+            };
+
+            await _unitOfWork.GetRepository<Penalty>().AddAsync(damagePenalty);
+            penaltyMessages.Add($"hasar durumu sebebiyle {damageAmount:C2}");
+        }
+
+        // --- 4. STATÜLERİ GÜNCELLEME ---
         var returnedLoanStatusId = await GetLoanStatusIdByCodeAsync(Statuses.Loan.Returned);
-        var availableBookStatusId = await GetBookStatusIdByCodeAsync(Statuses.BookCopy.Available);
+
+        // Eğer kitap hasarlıysa "IN_REPAIR" (Tamirde), sağlamsa "AVAILABLE" (Rafta) yapılır
+        string targetBookStatusCode = dto.IsDamaged ? Statuses.BookCopy.InRepair : Statuses.BookCopy.Available;
+        var targetBookStatusId = await GetBookStatusIdByCodeAsync(targetBookStatusCode);
 
         loan.StatusId = returnedLoanStatusId;
-        loan.BookCopy.StatusId = availableBookStatusId; // Kitap tekrar rafa dönüyor
+        loan.BookCopy.StatusId = targetBookStatusId;
 
         _loanRepository.Update(loan);
         await _unitOfWork.CompleteAsync();
 
-        // 5. Dinamik Sonuç Mesajı
-        var resultMessage = penaltyAmount > 0
-            ? $"Kitap başarıyla iade alındı. {delayDays} gün gecikme sebebiyle {penaltyAmount:C2} tutarında ceza yansıtıldı."
-            : "Kitap zamanında ve sorunsuz şekilde iade alındı. Teşekkür ederiz!";
+        // --- 5. DİNAMİK SONUÇ MESAJI ---
+        string resultMessage;
+        if (totalPenaltyAmount > 0)
+        {
+            string penaltyDetail = string.Join(" ve ", penaltyMessages);
+            string conditionText = dto.IsDamaged ? " Kitap tamir birimine (In Repair) yönlendirildi." : "";
+            resultMessage = $"Kitap iade alındı. {penaltyDetail} tutarında ceza yansıtıldı.{conditionText}";
+        }
+        else
+        {
+            resultMessage = "Kitap zamanında ve sorunsuz şekilde iade alındı. Teşekkür ederiz!";
+        }
 
         return new SuccessResult(resultMessage);
     }
