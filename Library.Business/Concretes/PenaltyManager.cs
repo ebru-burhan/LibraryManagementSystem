@@ -2,6 +2,7 @@
 using Library.Business.Abstracts;
 using Library.DataAccess.Repositories.Abstracts;
 using Library.Entity.Concrete.Operations;
+using Library.Entity.Constants;
 using Library.Model.Dtos.Penalties;
 using Library.Model.Results;
 using Microsoft.EntityFrameworkCore;
@@ -41,7 +42,10 @@ public class PenaltyManager : IPenaltyService
 
     public async Task<IResult> PayPenaltyAsync(Guid penaltyExternalId)
     {
+
         var penalty = await _penaltyRepository.Query(tracking: true)
+            .Include(p => p.PenaltyType)
+            .Include(p => p.Loan)
             .FirstOrDefaultAsync(p => p.ExternalId == penaltyExternalId);
 
         if (penalty == null)
@@ -50,11 +54,30 @@ public class PenaltyManager : IPenaltyService
         if (penalty.IsPaid)
             return new ErrorResult("Bu ceza zaten ödenmiş.");
 
-        // Ödeme işlemi kuralları
+       
         penalty.IsPaid = true;
         penalty.PaidDate = DateTime.UtcNow;
 
         _penaltyRepository.Update(penalty);
+
+        
+        // ödenince durumu değiştirmem gerek. lost için off bunu burda sevmedim de
+        if (penalty.PenaltyType.Code == PenaltyTypes.Lost && penalty.LoanId.HasValue)
+        {
+            var lostBookRepo = _unitOfWork.GetRepository<LostBook>();
+
+            // Bu kitaba ait henüz çözülmemiş (IsResolved = false) kayıp kaydını bul
+            var lostBook = await lostBookRepo.Query(tracking: true)
+                .FirstOrDefaultAsync(lb => lb.BookCopyId == penalty.Loan!.BookCopyId && !lb.IsResolved);
+
+            if (lostBook != null)
+            {
+                lostBook.IsResolved = true;
+                lostBookRepo.Update(lostBook);
+            }
+        }
+
+
         await _unitOfWork.CompleteAsync();
 
         return new SuccessResult("Ceza tahsilatı başarıyla gerçekleştirildi.");

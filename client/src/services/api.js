@@ -217,4 +217,22 @@ export const penaltyService = {
 };
 
 
+export const lostBookService = {
+  reportLost: async (dto) => {
+    const response = await api.post('/LostBooks/report', dto);
+    return response.data;
+  },
+  
+  getKpis: async () => {
+    const response = await api.get('/LostBooks/kpis');
+    return response.data;
+  },
+
+  getAll: async () => {
+    const response = await api.get('/LostBooks/all');
+    return response.data;
+  }
+};
+
+
 export default api;

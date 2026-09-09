@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { memberService } from '../../services/api';
+import { memberService, penaltyService } from '../../services/api'; // penaltyService eklendi
 import { PERMISSIONS } from '../../auth/permissionKeys';
 import { useAuth } from '../../hooks/useAuth';
 import './MemberDetailAdminPage.css';
@@ -23,6 +23,7 @@ export default function MemberDetailAdminPage() {
   const canManage = permissions.includes(PERMISSIONS.MANAGE_MEMBERS);
 
   const [member, setMember] = useState(null);
+  const [penalties, setPenalties] = useState([]); // Cezalar için yeni state
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState({ text: '', type: '' });
 
@@ -40,8 +41,21 @@ export default function MemberDetailAdminPage() {
     }
   };
 
+  // Cezaları çeken yeni fonksiyon
+  const fetchPenalties = async () => {
+    try {
+      const response = await penaltyService.getByMember(id);
+      if (response.success) {
+        setPenalties(response.data);
+      }
+    } catch (error) {
+      console.error("Cezalar çekilirken hata:", error);
+    }
+  };
+
   useEffect(() => {
     fetchMember();
+    fetchPenalties(); // Sayfa yüklendiğinde cezaları da çek
   }, [id]);
 
   const handleStatusChange = async (statusCode) => {
@@ -70,6 +84,21 @@ export default function MemberDetailAdminPage() {
     }
   };
 
+  // Tahsilat işlemini yapan fonksiyon
+  const handlePayPenalty = async (penaltyId) => {
+    if (!window.confirm("Bu cezanın tahsilatı yapıldı olarak işaretlenecek. Onaylıyor musunuz?")) return;
+    
+    try {
+      const response = await penaltyService.payPenalty(penaltyId);
+      if (response.success) {
+        setMessage({ text: response.message, type: 'success' });
+        fetchPenalties(); // Sadece cezalar tablosunu yenile, tüm sayfayı yorma
+      }
+    } catch (error) {
+      setMessage({ text: error.response?.data?.message || 'Tahsilat başarısız oldu.', type: 'error' });
+    }
+  };
+
   if (loading) {
     return <div className="member-detail-page">Üye kartı yükleniyor...</div>;
   }
@@ -90,7 +119,8 @@ export default function MemberDetailAdminPage() {
       </div>
 
       {message.text && <div className={`admin-alert ${message.type}`}>{message.text}</div>}
-<section className="member-profile-card">
+      
+      <section className="member-profile-card">
         {member.pictureUrl ? (
           <img src={`${FILE_BASE}${member.pictureUrl}`} alt={member.fullName} />
         ) : (
@@ -98,8 +128,6 @@ export default function MemberDetailAdminPage() {
         )}
         
         <div className="member-profile-info">
-          
-          {/* Üst Kısım: İsim, ID ve Sağdaki Butonlar */}
           <div className="profile-top-row">
             <div>
               <div className="member-profile-title">
@@ -111,7 +139,6 @@ export default function MemberDetailAdminPage() {
               </p>
             </div>
 
-            {/* Sağ Tarafa Yaslı Aksiyon Butonları */}
             {canManage && (
               <div className="profile-actions-inline">
                 {member.status !== 'ACTIVE' && (
@@ -131,10 +158,8 @@ export default function MemberDetailAdminPage() {
             )}
           </div>
 
-          {/* Ortadaki Ayırıcı Çizgi */}
           <hr className="profile-divider" />
 
-          {/* Alt Kısım: Yan Yana İletişim Bilgileri */}
           <div className="profile-meta-row">
             <div className="meta-item">
               <span>E-posta</span>
@@ -195,31 +220,41 @@ export default function MemberDetailAdminPage() {
       <div className="member-detail-split">
         <section className="member-section-card">
           <h3>Cezalar ve İşlemler</h3>
-          {member.penalties?.length ? (
+          {/* member.penalties YERİNE ARTIK YENİ STATE'İMİZ OLAN penalties'İ KULLANIYORUZ */}
+          {penalties.length > 0 ? (
             <table className="admin-table">
               <thead>
                 <tr>
                   <th>Neden</th>
                   <th>Oluşturulma</th>
-                  <th>Gecikme</th>
                   <th>Tutar</th>
                   <th>Durum</th>
+                  <th>İşlem</th>
                 </tr>
               </thead>
               <tbody>
-                {member.penalties.map((penalty) => (
+                {penalties.map((penalty) => (
                   <tr key={penalty.id}>
                     <td>
-                      {penalty.reason}
-                      {penalty.relatedBookTitle ? ` (${penalty.relatedBookTitle})` : ''}
+                      <strong>{penalty.penaltyTypeName}</strong>
+                      <div><small>{penalty.bookTitle} (Barkod: {penalty.barcode})</small></div>
                     </td>
                     <td>{formatDate(penalty.createdAt)}</td>
-                    <td>{penalty.delayDays} Gün</td>
                     <td className={!penalty.isPaid ? 'overdue-date' : ''}>{formatMoney(penalty.amount)}</td>
                     <td>
                       <span className={penalty.isPaid ? 'loan-badge' : 'loan-badge overdue'}>
                         {penalty.isPaid ? 'Ödendi' : 'Ödenmedi'}
                       </span>
+                    </td>
+                    <td>
+                      {!penalty.isPaid && canManage && (
+                        <button 
+                          className="btn-pay" 
+                          onClick={() => handlePayPenalty(penalty.id)}
+                        >
+                          Tahsil Et
+                        </button>
+                      )}
                     </td>
                   </tr>
                 ))}

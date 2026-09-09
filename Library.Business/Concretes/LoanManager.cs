@@ -126,6 +126,7 @@ public class LoanManager : ILoanService
 
     public async Task<IResult> ReturnLoanAsync(Guid loanExternalId)
     {
+        //TODO: burda hesap yapması onun görevi değil sanki ama bak bakalım sonra olmadı.
         // 1. İlgili ödünç kaydını Üye, Üyelik Tipi ve Kitap Kopyası ile birlikte getir
         var loan = await _loanRepository.Query(tracking: true)
             .Include(l => l.Member)

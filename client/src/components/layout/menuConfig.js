@@ -24,4 +24,10 @@ export const menuItems = [
     path: '/catalog',
     icon: '🔍',
   },
+  { 
+    title: 'Lost Books', 
+    path: '/lost-books', 
+    icon: '🚨', 
+    requiredPermission: 'view_loans' 
+  },
 ];

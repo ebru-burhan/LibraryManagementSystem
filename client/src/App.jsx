@@ -15,9 +15,10 @@ import MembershipApplicationListAdminPage from './pages/membershipApplication/Me
 import MemberListAdminPage from './pages/members/MemberListAdminPage';
 import MemberDetailAdminPage from './pages/members/MemberDetailAdminPage';
 
-import CatalogPage from './pages/catalog/CatalogPage'; // Dosya yolunu kendi klasörüne göre düzenleyebilirsin
+import CatalogPage from './pages/catalog/CatalogPage'; ///////////
 import AddBookCopyPage from './pages/bookCopy/AddBookCopyPage';
 
+import LostBookListAdminPage from './pages/lostBooks/LostBookListAdminPage';
 import { PERMISSIONS } from './auth/permissionKeys';
 
 export default function App() {
@@ -58,6 +59,15 @@ export default function App() {
                 <LoanListAdminPage />
               </AuthorizeRoute>
             }
+        />
+
+        <Route
+          path="/lost-books"
+          element={
+            <AuthorizeRoute requiredPermission={PERMISSIONS.VIEW_LOANS}>
+              <LostBookListAdminPage />
+            </AuthorizeRoute>
+          }
         />
 
         <Route

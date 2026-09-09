@@ -13,6 +13,7 @@ public class PenaltyProfile : Profile
             .ForMember(dest => dest.PenaltyType, opt => opt.MapFrom(src => src.PenaltyType.Name))
             .ForMember(dest => dest.BookTitle, opt => opt.MapFrom(src =>
                 src.Loan != null ? src.Loan.BookCopy.Book.Title : "Genel Ceza"))
+            .ForMember(dest => dest.Barcode, opt => opt.MapFrom(src => src.Loan!.BookCopy!.Barcode))
 
             .ForMember(dest => dest.MemberExternalId, opt => opt.MapFrom(src => src.Member.ExternalId))
             .ForMember(dest => dest.MemberFullName, opt => opt.MapFrom(src =>

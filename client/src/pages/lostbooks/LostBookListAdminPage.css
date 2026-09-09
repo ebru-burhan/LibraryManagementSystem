@@ -1,0 +1,37 @@
+@import '../../styles/variables.css';
+
+.page-loading {
+  padding: 1.5rem;
+  color: var(--text-muted);
+}
+
+.kpi-margin {
+  margin-bottom: 1.5rem;
+}
+
+.text-danger { color: #dc2626 !important; }
+.text-primary { color: #2563eb !important; }
+.text-bold { font-weight: 600; }
+.text-muted { color: #6b7280; }
+
+.badge-resolved {
+  background-color: #d1fae5;
+  color: #065f46;
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.badge-pending {
+  background-color: #fee2e2;
+  color: #991b1b;
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.padding-large {
+  padding: 1.5rem !important;
+}

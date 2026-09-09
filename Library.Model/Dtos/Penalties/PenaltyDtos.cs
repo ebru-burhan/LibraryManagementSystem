@@ -13,6 +13,8 @@ public class PenaltyListDto
     public string PenaltyType { get; set; } = null!;
     public string? BookTitle { get; set; }
 
+    public string? Barcode { get; set; }
+
     // dto gerek yok burda ya sadece ismi gerek id ile de tıklayabilir bence
     public Guid MemberExternalId { get; set; }
     public string MemberFullName { get; set; } = null!;
