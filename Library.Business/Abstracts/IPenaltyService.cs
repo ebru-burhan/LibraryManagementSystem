@@ -10,4 +10,6 @@ public interface IPenaltyService
 
     // Ceza ödeme işlemi
     Task<IResult> PayPenaltyAsync(Guid penaltyExternalId);
+
+    Task<IDataResult<List<PenaltyListDto>>> GetPenaltiesByUserIdAsync(int userId);
 }

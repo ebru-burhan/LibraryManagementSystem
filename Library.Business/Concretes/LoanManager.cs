@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using Library.Business.Abstracts;
+﻿using Library.Business.Abstracts;
 using Library.DataAccess.Repositories.Abstracts;
 using Library.Entity.Concrete.Catalog;
 using Library.Entity.Concrete.Lookups;
@@ -15,25 +14,26 @@ namespace Library.Business.Concretes;
 public class LoanManager : ILoanService
 {
     private readonly IUnitOfWork _unitOfWork;
+
     private readonly IGenericRepository<Loan> _loanRepository;
     private readonly IGenericRepository<Member> _memberRepository;
     private readonly IGenericRepository<BookCopy> _bookCopyRepository;
-    private readonly IGenericRepository<BookStatus> _bookStatusRepository;
-    private readonly IGenericRepository<LoanStatus> _loanStatusRepository;
+    private readonly IGenericRepository<Penalty> _penaltyRepository;
+    private readonly IGenericRepository<Reservation> _reservationRepository;
 
     public LoanManager(IUnitOfWork unitOfWork)
     {
         _unitOfWork = unitOfWork;
+
         _loanRepository = _unitOfWork.GetRepository<Loan>();
         _memberRepository = _unitOfWork.GetRepository<Member>();
         _bookCopyRepository = _unitOfWork.GetRepository<BookCopy>();
-        _bookStatusRepository = _unitOfWork.GetRepository<BookStatus>();
-        _loanStatusRepository = _unitOfWork.GetRepository<LoanStatus>();
+        _penaltyRepository = _unitOfWork.GetRepository<Penalty>();
+        _reservationRepository = _unitOfWork.GetRepository<Reservation>();
     }
 
     public async Task<IResult> CreateLoanAsync(CreateLoanDto createLoanDto)
     {
-
         var member = await _memberRepository.Query(tracking: false)
             .Include(m => m.Status)
             .Include(m => m.MembershipApplication)
@@ -47,7 +47,6 @@ public class LoanManager : ILoanService
         if (member.Status.Code != Statuses.Member.Active)
             return new ErrorResult("Sadece aktif üyeler kitap ödünç alabilir.");
 
-        // 2. Ödenmemiş Ceza Kontrolü
         var hasUnpaidPenalty = member.Penalties.Any(p => !p.IsPaid && !p.IsDeleted);
         if (hasUnpaidPenalty)
             return new ErrorResult("Ödenmemiş cezası bulunan üyeler yeni kitap alamaz.");
@@ -55,7 +54,6 @@ public class LoanManager : ILoanService
         if (createLoanDto.BookCopyId == null && string.IsNullOrWhiteSpace(createLoanDto.Barcode))
             return new ErrorResult("Lütfen ödünç verilecek kitap için bir ID veya Barkod sağlayın.");
 
-        // Query ve Include gücüyle hem takibi (tracking) açıyoruz hem status'ü çekiyoruz
         var query = _bookCopyRepository.Query(tracking: true)
             .Include(c => c.Status);
 
@@ -76,49 +74,35 @@ public class LoanManager : ILoanService
         if (bookCopy.Status.Code != Statuses.BookCopy.Available)
             return new ErrorResult("Bu kitap şu anda rafta değil.");
 
-      // Süre Hesaplama
-        int maxLoanDays = 14; // Varsayılan 
+        int maxLoanDays = 14;
 
         if (member.MembershipApplication?.MembershipType != null)
         {
-            // Eğer üyelik tipinde MaxLoanDays tanımlıysa onu al, yoksa varsayılanı kullan
             maxLoanDays = member.MembershipApplication.MembershipType.MaxLoanDays > 0
                 ? member.MembershipApplication.MembershipType.MaxLoanDays
                 : 14;
         }
 
-        // 5. Veritabanındaki Statü ID'lerini Bulma
-        var loanStatuses = await _loanStatusRepository.FindAsync(s => s.Code == Statuses.Loan.Borrowed, tracking: false);
-        var borrowedStatus = loanStatuses.FirstOrDefault()
-            ?? throw new Exception("Kritik Hata: 'BORROWED' ödünç statüsü bulunamadı.");
+        var borrowedStatusId = await GetLoanStatusIdByCodeAsync(Statuses.Loan.Borrowed);
+        var onLoanStatusId = await GetBookStatusIdByCodeAsync(Statuses.BookCopy.OnLoan);
 
-        var bookStatuses = await _bookStatusRepository.FindAsync(s => s.Code == Statuses.BookCopy.OnLoan, tracking: false);
-        var onLoanStatus = bookStatuses.FirstOrDefault()
-            ?? throw new Exception("Kritik Hata: 'ON_LOAN' kitap statüsü bulunamadı.");
-
-
-        // uı den gelen dto da loandate varsa onu kullanrız yoksa ne zman butona basılırsa 
         var finalLoanDate = createLoanDto.LoanDate ?? DateTime.UtcNow;
-        //beklenen teslim tarihi verilirse o yoksa membertype a göre belirledik 
-        var finalDueDate = finalLoanDate.AddDays(maxLoanDays); // Artık 14 veya 30 gün eklenecek!
+        var finalDueDate = finalLoanDate.AddDays(maxLoanDays);
 
-
-        // 6. Kayıtları Oluşturma ve Güncelleme
         var newLoan = new Loan
         {
-            MemberId = member.Id, // İçeride (int) kimlikleri bağlıyoruz
+            MemberId = member.Id,
             BookCopyId = bookCopy.Id,
             LoanDate = finalLoanDate,
             DueDate = finalDueDate,
-            StatusId = borrowedStatus.Id
+            StatusId = borrowedStatusId
         };
 
         await _loanRepository.AddAsync(newLoan);
 
-        bookCopy.StatusId = onLoanStatus.Id;
+        bookCopy.StatusId = onLoanStatusId;
         _bookCopyRepository.Update(bookCopy);
 
-        // 7. Unit of Work Şovu (İşlem Bütünlüğü - Transaction)
         await _unitOfWork.CompleteAsync();
 
         return new SuccessResult($"Kitap başarıyla ödünç verildi. Teslim Tarihi: {newLoan.DueDate:dd.MM.yyyy}");
@@ -126,7 +110,6 @@ public class LoanManager : ILoanService
 
     public async Task<IResult> ReturnLoanAsync(Guid loanExternalId, ReturnLoanDto dto)
     {
-        // 1. İlgili ödünç kaydını Üye, Üyelik Tipi ve Kitap Kopyası ile birlikte getir
         var loan = await _loanRepository.Query(tracking: true)
             .Include(l => l.Member)
                 .ThenInclude(m => m.MembershipApplication)
@@ -140,7 +123,6 @@ public class LoanManager : ILoanService
         if (loan.ReturnDate.HasValue)
             return new ErrorResult("Bu kitap zaten iade edilmiş.");
 
-        // 2. İade işlemini gerçekleştir
         loan.ReturnDate = DateTime.UtcNow;
 
         var membershipType = loan.Member.MembershipApplication.MembershipType;
@@ -149,7 +131,6 @@ public class LoanManager : ILoanService
         decimal totalPenaltyAmount = 0;
         var penaltyMessages = new List<string>();
 
-        // --- 3. A: GECİKME CEZASI HESAPLAMA MOTORU ---
         if (delayDays > membershipType.GracePeriodDays)
         {
             int penalizableDays = delayDays - membershipType.GracePeriodDays;
@@ -167,11 +148,10 @@ public class LoanManager : ILoanService
                 IsPaid = false
             };
 
-            await _unitOfWork.GetRepository<Penalty>().AddAsync(penalty);
+            await _penaltyRepository.AddAsync(penalty);
             penaltyMessages.Add($"{delayDays} gün gecikme sebebiyle {overdueAmount:C2}");
         }
 
-        // --- 3. B: HASAR CEZASI HESAPLAMA MOTORU ---
         if (dto.IsDamaged)
         {
             decimal damageAmount = dto.DamageAmount ?? 0;
@@ -191,15 +171,49 @@ public class LoanManager : ILoanService
                 IsPaid = false
             };
 
-            await _unitOfWork.GetRepository<Penalty>().AddAsync(damagePenalty);
+            await _penaltyRepository.AddAsync(damagePenalty);
             penaltyMessages.Add($"hasar durumu sebebiyle {damageAmount:C2}");
         }
 
-        // --- 4. STATÜLERİ GÜNCELLEME ---
         var returnedLoanStatusId = await GetLoanStatusIdByCodeAsync(Statuses.Loan.Returned);
 
-        // Eğer kitap hasarlıysa "IN_REPAIR" (Tamirde), sağlamsa "AVAILABLE" (Rafta) yapılır
-        string targetBookStatusCode = dto.IsDamaged ? Statuses.BookCopy.InRepair : Statuses.BookCopy.Available;
+        string targetBookStatusCode;
+        string reservationMessage = "";
+
+        if (dto.IsDamaged)
+        {
+            targetBookStatusCode = Statuses.BookCopy.InRepair;
+        }
+        else
+        {
+
+            ///reservationnnn
+            var waitingStatusId = await GetReservationStatusIdByCodeAsync(Statuses.Reservation.Waiting);
+
+            var nextReservation = await _reservationRepository.Query(tracking: true)
+                .Include(r => r.Member)
+                    .ThenInclude(m => m.User)
+                .Where(r => r.BookId == loan.BookCopy.BookId && r.StatusId == waitingStatusId)
+                .OrderBy(r => r.QueueNumber)
+                .FirstOrDefaultAsync();
+
+            if (nextReservation != null)
+            {
+                targetBookStatusCode = Statuses.BookCopy.Reserved;
+
+                var completedStatusId = await GetReservationStatusIdByCodeAsync(Statuses.Reservation.Completed);
+                nextReservation.StatusId = completedStatusId;
+
+                _reservationRepository.Update(nextReservation);
+
+                reservationMessage = $" Dikkat: Bu kitap {nextReservation.Member.User.FirstName} {nextReservation.Member.User.LastName} adlı üye için ayrılmıştır.";
+            }
+            else
+            {
+                targetBookStatusCode = Statuses.BookCopy.Available;
+            }
+        }
+
         var targetBookStatusId = await GetBookStatusIdByCodeAsync(targetBookStatusCode);
 
         loan.StatusId = returnedLoanStatusId;
@@ -208,22 +222,20 @@ public class LoanManager : ILoanService
         _loanRepository.Update(loan);
         await _unitOfWork.CompleteAsync();
 
-        // --- 5. DİNAMİK SONUÇ MESAJI ---
         string resultMessage;
         if (totalPenaltyAmount > 0)
         {
             string penaltyDetail = string.Join(" ve ", penaltyMessages);
             string conditionText = dto.IsDamaged ? " Kitap tamir birimine (In Repair) yönlendirildi." : "";
-            resultMessage = $"Kitap iade alındı. {penaltyDetail} tutarında ceza yansıtıldı.{conditionText}";
+            resultMessage = $"Kitap iade alındı. {penaltyDetail} tutarında ceza yansıtıldı.{conditionText}{reservationMessage}";
         }
         else
         {
-            resultMessage = "Kitap zamanında ve sorunsuz şekilde iade alındı. Teşekkür ederiz!";
+            resultMessage = $"Kitap zamanında ve sorunsuz şekilde iade alındı. Teşekkür ederiz!{reservationMessage}";
         }
 
         return new SuccessResult(resultMessage);
     }
-
 
     public async Task<IDataResult<List<LoanListDto>>> GetActiveLoansAsync()
     {
@@ -234,7 +246,7 @@ public class LoanManager : ILoanService
             .Include(l => l.BookCopy)
                 .ThenInclude(bc => bc.Book)
             .Include(l => l.Status)
-            .Where(l => l.ReturnDate == null) // Henüz iade edilmemiş aktif ödünçler
+            .Where(l => l.ReturnDate == null)
             .OrderBy(l => l.DueDate)
             .ToListAsync();
 
@@ -267,30 +279,78 @@ public class LoanManager : ILoanService
 
 
 
+    public async Task<IDataResult<List<LoanListDto>>> GetLoansByUserIdAsync(int userId)
+    {
+        // 1. Token'dan gelen UserId ile üyeyi buluyoruz
+        var member = await _memberRepository.Query(tracking: false)
+            .FirstOrDefaultAsync(m => m.UserId == userId);
 
+        if (member == null)
+            return new ErrorDataResult<List<LoanListDto>>("Sistemde aktif bir üyelik profiliniz bulunamadı.");
 
+        // 2. Üyenin ödünç kayıtlarını ilişkileriyle birlikte çekiyoruz
+        var loans = await _loanRepository.Query(tracking: false)
+            .Include(l => l.Member)
+                .ThenInclude(m => m.User)
+            .Include(l => l.Member.MembershipApplication)
+            .Include(l => l.BookCopy)
+                .ThenInclude(bc => bc.Book)
+            .Include(l => l.Status)
+            .Where(l => l.MemberId == member.Id) // Sadece bu üyeye ait olanlar
+            .OrderByDescending(l => l.LoanDate)
+            .ToListAsync();
 
-    ///offf kod tekrarı bunları başka yerde de getirdik
-    ///TODO: IlookupService desek olur toparlarız !!!!!!!!!!!!!!
+        // 3. Zaten mevcut olan LoanListDto mapping mantığımızı burada da çalıştırıyoruz
+        var listDtos = loans.Select(l => {
+            var today = DateTime.UtcNow.Date;
+            var dueDate = l.DueDate.Date;
+            var diffDays = (dueDate - today).Days;
 
+            bool isOverdue = diffDays < 0;
+            int delayDays = isOverdue ? Math.Abs(diffDays) : 0;
+
+            return new LoanListDto
+            {
+                Id = l.ExternalId,
+                MemberFullName = l.Member?.User != null ? $"{l.Member.User.FirstName} {l.Member.User.LastName}" : "Bilinmiyor",
+                MemberNumber = l.Member?.Id.ToString() ?? "LUM-000",
+                BookTitle = l.BookCopy?.Book?.Title ?? "Bilinmiyor",
+                Barcode = l.BookCopy?.Barcode ?? "",
+                LoanDate = l.LoanDate,
+                DueDate = l.DueDate,
+                ReturnDate = l.ReturnDate,
+                Status = l.ReturnDate != null ? "İade Edildi" : (isOverdue ? "Gecikti" : (diffDays <= 2 ? "Kritik" : "Normal")),
+                IsOverdue = isOverdue,
+                DelayDays = delayDays
+            };
+        }).ToList();
+
+        return new SuccessDataResult<List<LoanListDto>>(listDtos, "Ödünç geçmişiniz başarıyla getirildi.");
+    }
+
+    // ADIM 4: YARDIMCI METOTLAR LOKAL ÇAĞRIM YAPIYOR (Constructor Şişmesini Engelliyor)
     private async Task<int> GetPenaltyTypeIdByCodeAsync(string code)
     {
-        var repository = _unitOfWork.GetRepository<PenaltyType>();
-        var type = await repository.Query(tracking: false).FirstOrDefaultAsync(x => x.Code == code);
+        var type = await _unitOfWork.GetRepository<PenaltyType>().Query(tracking: false).FirstOrDefaultAsync(x => x.Code == code);
         return type?.Id ?? throw new InvalidOperationException($"Kritik Hata: '{code}' ceza tipi bulunamadı!");
     }
 
     private async Task<int> GetLoanStatusIdByCodeAsync(string code)
     {
-        var repository = _unitOfWork.GetRepository<LoanStatus>();
-        var status = await repository.Query(tracking: false).FirstOrDefaultAsync(x => x.Code == code);
+        var status = await _unitOfWork.GetRepository<LoanStatus>().Query(tracking: false).FirstOrDefaultAsync(x => x.Code == code);
         return status?.Id ?? throw new InvalidOperationException($"Kritik Hata: '{code}' ödünç statüsü bulunamadı!");
     }
 
     private async Task<int> GetBookStatusIdByCodeAsync(string code)
     {
-        var repository = _unitOfWork.GetRepository<BookStatus>();
-        var status = await repository.Query(tracking: false).FirstOrDefaultAsync(x => x.Code == code);
+        var status = await _unitOfWork.GetRepository<BookStatus>().Query(tracking: false).FirstOrDefaultAsync(x => x.Code == code);
         return status?.Id ?? throw new InvalidOperationException($"Kritik Hata: '{code}' kitap statüsü bulunamadı!");
+    }
+
+    // Eklemeyi unuttuğumuz metodumuz:
+    private async Task<int> GetReservationStatusIdByCodeAsync(string code)
+    {
+        var status = await _unitOfWork.GetRepository<ReservationStatus>().Query(tracking: false).FirstOrDefaultAsync(x => x.Code == code);
+        return status?.Id ?? throw new InvalidOperationException($"Kritik Hata: '{code}' rezervasyon statüsü bulunamadı!");
     }
 }

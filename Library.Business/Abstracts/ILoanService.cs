@@ -9,4 +9,6 @@ public interface ILoanService
     Task<IResult> ReturnLoanAsync(Guid loanExternalId, ReturnLoanDto dto);
 
     Task<IDataResult<List<LoanListDto>>> GetActiveLoansAsync();
+
+    Task<IDataResult<List<LoanListDto>>> GetLoansByUserIdAsync(int userId);
 }

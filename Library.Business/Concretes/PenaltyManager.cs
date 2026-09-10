@@ -2,6 +2,7 @@
 using Library.Business.Abstracts;
 using Library.DataAccess.Repositories.Abstracts;
 using Library.Entity.Concrete.Operations;
+using Library.Entity.Concrete.Membership;
 using Library.Entity.Constants;
 using Library.Model.Dtos.Operations;
 using Library.Model.Results;
@@ -81,5 +82,32 @@ public class PenaltyManager : IPenaltyService
         await _unitOfWork.CompleteAsync();
 
         return new SuccessResult("Ceza tahsilatı başarıyla gerçekleştirildi.");
+    }
+
+
+    public async Task<IDataResult<List<PenaltyListDto>>> GetPenaltiesByUserIdAsync(int userId)
+    {
+        // 1. Token'dan gelen int UserId ile ilgili Member'ı buluyoruz
+        var member = await _unitOfWork.GetRepository<Member>().Query(tracking: false)
+            .FirstOrDefaultAsync(m => m.UserId == userId);
+
+        if (member == null)
+            return new ErrorDataResult<List<PenaltyListDto>>("Sistemde aktif bir üyelik profiliniz bulunamadı.");
+
+        // 2. Bulduğumuz Member'ın ID'si üzerinden cezaları çekiyoruz
+        var penalties = await _penaltyRepository.Query(tracking: false)
+            .Include(p => p.PenaltyType)
+            .Include(p => p.Loan)
+                .ThenInclude(l => l!.BookCopy)
+                    .ThenInclude(c => c.Book)
+            .Where(p => p.MemberId == member.Id)
+            .OrderByDescending(p => p.CreatedAt)
+            .ToListAsync();
+
+        if (penalties == null || !penalties.Any())
+            return new SuccessDataResult<List<PenaltyListDto>>(new List<PenaltyListDto>(), "Üyeye ait ceza kaydı bulunmuyor.");
+
+        var dtos = _mapper.Map<List<PenaltyListDto>>(penalties);
+        return new SuccessDataResult<List<PenaltyListDto>>(dtos, "Cezalarınız başarıyla getirildi.");
     }
 }

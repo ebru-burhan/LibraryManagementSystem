@@ -21,13 +21,33 @@ namespace Library.Business.SeedData
 
                 context.Database.Migrate();
 
-                // 1. ROLLERİ SEED ET
                 if (!context.Roles.Any())
                 {
                     context.Roles.AddRange(
-                        new Role { Name = "Admin", Description = "Sistem Yöneticisi", Permissions = "view_dashboard,manage_members,view_loans,create_book,view_catalog", CreatedAt = DateTime.Now, ExternalId = Guid.NewGuid() },
-                        new Role { Name = "Librarian", Description = "Kütüphane Personeli", Permissions = "view_catalog", CreatedAt = DateTime.Now, ExternalId = Guid.NewGuid() },
-                        new Role { Name = "Member", Description = "Kütüphane Üyesi", Permissions = "view_loans,view_catalog", CreatedAt = DateTime.Now, ExternalId = Guid.NewGuid() }
+                        new Role
+                        {
+                            Name = "Admin",
+                            Description = "Sistem Yöneticisi",
+                            Permissions = "view_dashboard,manage_roles,manage_settings,manage_members,manage_loans,manage_catalog",
+                            CreatedAt = DateTime.Now,
+                            ExternalId = Guid.NewGuid()
+                        },
+                        new Role
+                        {
+                            Name = "Librarian",
+                            Description = "Kütüphane Personeli",
+                            Permissions = "view_dashboard,manage_members,manage_loans,manage_catalog",
+                            CreatedAt = DateTime.Now,
+                            ExternalId = Guid.NewGuid()
+                        },
+                        new Role
+                        {
+                            Name = "Member",
+                            Description = "Kütüphane Üyesi",
+                            Permissions = "view_catalog,view_membership_status,view_my_reservations,view_my_loans,view_my_penalties",
+                            CreatedAt = DateTime.Now,
+                            ExternalId = Guid.NewGuid()
+                        }
                     );
                     context.SaveChanges();
                 }

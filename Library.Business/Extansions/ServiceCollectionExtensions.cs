@@ -41,6 +41,7 @@ public static class ServiceCollectionExtensions
             cfg.AddProfile<BookProfile>();
             cfg.AddProfile<PenaltyProfile>();
             cfg.AddProfile<LostBookProfile>();
+            cfg.AddProfile<ReservationProfile>();
 
 
         });
@@ -55,6 +56,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ILoanService, LoanManager>();
         services.AddScoped<IPenaltyService, PenaltyManager>();
         services.AddScoped<ILostBookService, LostBookManager>();
+        services.AddScoped<IReservationService, ReservationManager >();
 
         //JWT - Güvenlik Araçları ve Ayarları
         services.Configure<JwtOptions>(configuration.GetRequiredSection(JwtOptions.SectionName));

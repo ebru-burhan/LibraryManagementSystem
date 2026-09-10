@@ -49,5 +49,6 @@ public static class Statuses
         public const string OnLoan = "ON_LOAN";      // Ödünç Verildi
         public const string InRepair = "IN_REPAIR";  // Tamirde??
         public const string Lost = "LOST";           // Kayıp
+        public const string Reserved = "RESERVED";
     }
 }

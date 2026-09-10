@@ -1,31 +1,91 @@
 ﻿using Library.Business.Abstracts;
+using Library.DataAccess.Repositories.Abstracts;
+using Library.Entity.Concrete.Operations;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace Library.API.Controllers;
 
-    [Route("api/[controller]")]
-    [ApiController]
-    public class MyProfileController : ControllerBase
-    {
-        private readonly IMemberService _memberService;
-    public MyProfileController(IMemberService memberService)
+[Route("api/[controller]")]
+[ApiController]
+[Authorize(Roles = "Member")] // Zırh: Sınıftaki tüm uçlara sadece 'Member' rolü girebilir
+public class MyProfileController : ControllerBase
+{
+    private readonly IMemberService _memberService;
+    private readonly IReservationService _reservationService;
+    private readonly ILoanService _loanService;
+    private readonly IPenaltyService _penaltyService;
+
+    public MyProfileController(IMemberService memberService, IReservationService reservationService, ILoanService loanService, IPenaltyService penaltyService)
     {
         _memberService = memberService;
+        _reservationService = reservationService;
+        _loanService = loanService;
+        _penaltyService = penaltyService;
     }
 
+
+
+    [HttpGet("my-loans")]
+    public async Task<IActionResult> GetMyLoans()
+    {
+        var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out int userId))
+        {
+            return Unauthorized(new { Message = "Güvenlik ihlali: Geçersiz kullanıcı kimliği." });
+        }
+
+        var result = await _loanService.GetLoansByUserIdAsync(userId);
+
+        if (result.Success)
+        {
+            return Ok(result);
+        }
+
+        return BadRequest(result);
+    }
 
     [HttpGet("my-penalties")]
-    [Authorize(Roles = "Member")] 
-    // TODO: Üyenin kendi cezalarını göreceği uç. URL'den ID alınmayacak, JWT token içindeki (ClaimTypes.NameIdentifier) üye ID'si ile _penaltyService üzerinden filtrelenip dönecek!
     public async Task<IActionResult> GetMyPenalties()
     {
-        // Token'dan üye ID'si okunup buraya entegre edilecek!!!!!
-        throw new NotImplementedException();
+        var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out int userId))
+        {
+            return Unauthorized(new { Message = "Güvenlik ihlali: Geçersiz kullanıcı kimliği." });
+        }
+
+        var result = await _penaltyService.GetPenaltiesByUserIdAsync(userId);
+
+        if (result.Success)
+        {
+            return Ok(result);
+        }
+
+        return BadRequest(result);
     }
 
+    [HttpGet("my-reservations")]
+    public async Task<IActionResult> GetMyReservations()
+    {
+        // 1. Token'ın içine mühürlediğimiz User.Id (int) değerini okuyoruz
+        var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
+        if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out int userId))
+        {
+            return Unauthorized(new { Message = "Güvenlik ihlali: Geçersiz kullanıcı kimliği." });
+        }
 
+        // 2. Servise token'dan çıkan saf 'int userId'yi gönderiyoruz
+        var result = await _reservationService.GetReservationsByUserIdAsync(userId);
+
+        if (result.Success)
+        {
+            return Ok(result);
+        }
+
+        return BadRequest(result);
+    }
 }
-
