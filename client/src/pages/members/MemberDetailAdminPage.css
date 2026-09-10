@@ -217,6 +217,30 @@
   color: var(--text-muted);
 }
 
+.btn-pay {
+  background-color: #e07a2a; /* Temaya uygun turuncu */
+  color: #fff;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+.btn-pay:hover {
+  background-color: #c4641d; /* Hover durumunda biraz daha koyu */
+  transform: translateY(-1px); /* Tıklanma hissi için yukarı kalk */
+}
+
+.btn-pay:active {
+  transform: translateY(0);
+}
+
+
+
 /* MOBİL UYUM */
 @media (max-width: 1024px) {
   .member-profile-card,

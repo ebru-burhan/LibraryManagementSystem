@@ -234,5 +234,43 @@ export const lostBookService = {
   }
 };
 
+export const reservationService = {
+  
+  getByMember: async (memberId) => {
+    const response = await api.get(`/reservations/member/${memberId}`);
+    return response.data;
+  },
+
+getAll: async () => {
+    const response = await api.get('/Reservations/all');
+    return response.data;
+  },
+  
+ create: async (data) => {
+    const response = await api.post('/Reservations/create', data);
+    return response.data;
+  },
+
+  cancel: async (id) => {
+    const response = await api.put(`/reservations/cancel/${id}`);
+    return response.data;
+  }
+};
+
+
+export const myProfileService = {
+  getMyLoans: async () => {
+    const response = await api.get('/MyProfile/my-loans');
+    return response.data;
+  },
+  getMyPenalties: async () => {
+    const response = await api.get('/MyProfile/my-penalties');
+    return response.data;
+  },
+  getMyReservations: async () => {
+    const response = await api.get('/MyProfile/my-reservations');
+    return response.data;
+  }
+};
 
 export default api;

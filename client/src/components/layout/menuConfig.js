@@ -1,3 +1,5 @@
+import { PERMISSIONS } from '../../auth/permissionKeys';
+
 export const menuItems = [
 
   {
@@ -45,6 +47,12 @@ export const menuItems = [
     requiredPermission: PERMISSIONS.MANAGE_LOANS 
   },
 
+  {
+    title: 'Rezervasyonlar',
+    path: '/reservations',
+    icon: '⏳',
+    requiredPermission: PERMISSIONS.MANAGE_LOANS
+  },
 
 
 {

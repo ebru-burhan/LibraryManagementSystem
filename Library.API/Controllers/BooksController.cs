@@ -7,7 +7,7 @@ namespace Library.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Roles = "Admin")]
+    [Authorize]
     public class BooksController : ControllerBase
     {
         private readonly IBookService _bookService;
@@ -47,6 +47,7 @@ namespace Library.API.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin,Librarian")]
         public async Task<IActionResult> Add([FromBody] CreateBookDto dto)
         {
             var result = await _bookService.AddAsync(dto);
@@ -60,6 +61,7 @@ namespace Library.API.Controllers
         }
 
         [HttpDelete("{id:guid}")]
+        [Authorize(Roles = "Admin,Librarian")]
         public async Task<IActionResult> Delete([FromRoute] Guid id)
         {
             var result = await _bookService.DeleteAsync(id);

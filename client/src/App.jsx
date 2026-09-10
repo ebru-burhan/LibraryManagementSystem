@@ -15,9 +15,10 @@ import MembershipApplicationListAdminPage from './pages/membershipApplication/Me
 import MemberListAdminPage from './pages/members/MemberListAdminPage';
 import MemberDetailAdminPage from './pages/members/MemberDetailAdminPage';
 
-import CatalogPage from './pages/catalog/CatalogPage'; ///////////
+import CatalogPage from './pages/catalog/CatalogPage'; 
 import AddBookCopyPage from './pages/bookCopy/AddBookCopyPage';
 
+import ReservationListAdminPage from './pages/reservations/ReservationListAdminPage';
 import LostBookListAdminPage from './pages/lostBooks/LostBookListAdminPage';
 import { PERMISSIONS } from './auth/permissionKeys';
 
@@ -27,11 +28,12 @@ export default function App() {
       {/* Herkese açık (Public) rotalar */}
       <Route path="/" element={<LoginPage />} />
       <Route path="/login" element={<LoginPage />} />
-      <Route path="/register" element={<RegisterPage />} /> {/* Rota bağlandı */}
+      <Route path="/register" element={<RegisterPage />} /> 
+
       {/* 
         SİHİRLİ KISIM BURASI: 
         Önce ProtectedRoute ile güvenliği sağlıyoruz, 
-        ardından AdminLayout ile iskeleti kuruyoruz. 
+        ardından MainLayout ile iskeleti kuruyoruz. 
         İçindeki tüm rotalar (Dashboard vs.) Outlet'e düşüyor! 
       */}
       <Route 
@@ -42,20 +44,22 @@ export default function App() {
         }
       >
 
-
-      <Route path="/dashboard" element={<DashboardPage />} />
-
-      {/* İleride eklenecek /catalog, /members gibi sayfalar da buraya gelecek */}
-      <Route path="/membership-apply" element={<MembershipApplicationPage />} />
-      
+        <Route path="/dashboard" element={<DashboardPage />} />
+        <Route path="/membership-apply" element={<MembershipApplicationPage />} />
+        
+        {/* Katalog sayfası giriş yapan HERKESE açık */}
+        <Route
+          path="/catalog"
+          element={
+            <CatalogPage />
+          }
+        />
              
-      {/* Sadece onaylı Member veya Admin rolüne sahip olanlar erişebilir */}
-      
-        {/* Sadece 'Member' veya 'Admin' yetkisi olanlar görebilir, aksi takdirde membership-apply'a atılır */}
+        {/* === PERSONEL / ADMIN ROTALARI === */}
         <Route
             path="/loans"
             element={
-              <AuthorizeRoute requiredPermission={PERMISSIONS.VIEW_LOANS}>
+              <AuthorizeRoute requiredPermission={PERMISSIONS.MANAGE_LOANS}>
                 <LoanListAdminPage />
               </AuthorizeRoute>
             }
@@ -64,8 +68,18 @@ export default function App() {
         <Route
           path="/lost-books"
           element={
-            <AuthorizeRoute requiredPermission={PERMISSIONS.VIEW_LOANS}>
+            <AuthorizeRoute requiredPermission={PERMISSIONS.MANAGE_LOANS}>
               <LostBookListAdminPage />
+            </AuthorizeRoute>
+          }
+        />
+
+
+        <Route
+          path="/reservations"
+          element={
+            <AuthorizeRoute requiredPermission={PERMISSIONS.MANAGE_LOANS}>
+              <ReservationListAdminPage />
             </AuthorizeRoute>
           }
         />
@@ -97,21 +111,11 @@ export default function App() {
           }
         />
 
-
-       <Route
-          path="/catalog"
-          element={
-            <AuthorizeRoute requiredPermission={PERMISSIONS.CREATE_BOOK}>
-              <CatalogPage />
-            </AuthorizeRoute>
-          }
-        />
-
-
+        {/* Kitap/Kopya Ekleme Ekranı -> Sadece MANAGE_CATALOG yetkisi olanlar görebilir */}
         <Route
           path="/book-copies/add"
           element={
-            <AuthorizeRoute requiredPermission={PERMISSIONS.CREATE_BOOK}>
+            <AuthorizeRoute requiredPermission={PERMISSIONS.MANAGE_CATALOG}>
               <AddBookCopyPage />
             </AuthorizeRoute>
           }
