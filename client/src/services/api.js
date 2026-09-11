@@ -270,7 +270,11 @@ export const myProfileService = {
   getMyReservations: async () => {
     const response = await api.get('/MyProfile/my-reservations');
     return response.data;
-  }
+  },
+  getMyDetails: async () => {
+    const response = await api.get('/MyProfile/my-details');
+    return response.data;
+  },
 };
 
 export default api;

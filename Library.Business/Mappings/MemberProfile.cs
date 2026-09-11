@@ -15,7 +15,7 @@ public class MemberProfile : Profile
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ExternalId))
             .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => $"{src.User.FirstName} {src.User.LastName}".Trim()))
             .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.User.Email))
-            .ForMember(dest => dest.Phone, opt => opt.MapFrom(src => src.User.PhoneNumber ?? src.MembershipApplication.PhoneNumber))
+            .ForMember(dest => dest.PhoneNumber, opt => opt.MapFrom(src => src.User.PhoneNumber ?? src.MembershipApplication.PhoneNumber))
             .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status.Code))
             .ForMember(dest => dest.StatusName, opt => opt.MapFrom(src => src.Status.Name));
 
@@ -45,6 +45,10 @@ public class MemberProfile : Profile
             .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.User.Address ?? src.MembershipApplication.Address))
             .ForMember(dest => dest.PictureUrl, opt => opt.MapFrom(src => src.MembershipApplication.PictureUrl))
             .ForMember(dest => dest.UnpaidDebtAmount, opt => opt.MapFrom(src => src.Penalties.Where(p => !p.IsPaid).Sum(p => p.Amount)))
+
+            .ForMember(dest => dest.IdentityNumber, opt => opt.MapFrom(src => src.MembershipApplication.IdentityNumber))
+            .ForMember(dest => dest.MembershipType, opt => opt.MapFrom(src => src.MembershipApplication.MembershipType))
+
             .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreatedAt))
             .ForMember(dest => dest.ActiveLoans, opt => opt.MapFrom(src => src.Loans.Where(l => l.ReturnDate == null).OrderByDescending(l => l.LoanDate)))
             .ForMember(dest => dest.Reservations, opt => opt.MapFrom(src => src.Reservations.Where(r => r.Status.Code == Statuses.Reservation.Waiting).OrderBy(r => r.QueueNumber)))

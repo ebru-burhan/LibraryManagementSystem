@@ -106,14 +106,38 @@
   margin-bottom: 16px;
 }
 
+/* --- GÜNCELLENEN ALAN: Butonları alt alta dizmek için --- */
 .book-actions {
   margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .status-badge.available {
   color: #22c55e;
   font-weight: 600;
   font-size: 0.85rem;
+  text-align: center;
+  padding: 8px 0;
+}
+
+/* --- YENİ EKLENEN: İncele Butonu --- */
+.btn-inspect {
+  width: 100%;
+  background-color: transparent;
+  color: var(--text-main);
+  border: 1px solid var(--border-color);
+  padding: 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.btn-inspect:hover {
+  border-color: var(--text-main);
+  background-color: var(--bg-color);
 }
 
 .btn-reserve {
@@ -125,6 +149,7 @@
   border-radius: 6px;
   cursor: pointer;
   font-weight: 600;
+  transition: background-color 0.2s;
 }
 
 .btn-reserve:hover {

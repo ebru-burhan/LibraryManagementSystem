@@ -8,7 +8,8 @@ import './Sidebar.css';
 
 export default function Sidebar() {
   const navigate = useNavigate();
-  const { permissions } = useAuth(); 
+  // isMember değişkenini de useAuth'tan çekiyoruz
+  const { permissions, isMember } = useAuth(); 
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -31,19 +32,28 @@ export default function Sidebar() {
         </div>
       </div>
 
-      {permissions.includes(PERMISSIONS.CREATE_BOOK) && (
+      {permissions.includes(PERMISSIONS.MANAGE_CATALOG) && (
         <div className="sidebar-action" style={{ marginBottom: '24px' }}>
           <button className="new-entry-btn">+ New Entry</button>
         </div>
       )}
 
       <nav className="sidebar-nav">
-        {filteredMenus.map((menu) => (
-          <NavLink key={menu.path} to={menu.path} className="nav-item">
-            <span className="nav-icon">{menu.icon}</span>
-            {menu.title}
-          </NavLink>
-        ))}
+        {filteredMenus.map((menu) => {
+          
+          // SİHİRLİ DOKUNUŞ: Eğer menü "Üyelik Durumum" ise ve kullanıcı artık onaylı bir üyeyse (isMember true), başlığı değiştir.
+          let displayTitle = menu.title;
+          if (menu.path === '/membership-apply' && isMember) {
+            displayTitle = 'Profilim'; 
+          }
+
+          return (
+            <NavLink key={menu.path} to={menu.path} className="nav-item">
+              <span className="nav-icon">{menu.icon}</span>
+              {displayTitle}
+            </NavLink>
+          );
+        })}
       </nav>
 
       <div className="sidebar-footer">

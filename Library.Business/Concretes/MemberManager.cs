@@ -135,6 +135,23 @@ public class MemberManager : IMemberService
     }
 
 
+    public async Task<IDataResult<MemberDetailDto>> GetMyProfileByUserIdAsync(int userId)
+    {
+        var member = await BuildMemberQuery(tracking: false)
+            .FirstOrDefaultAsync(m => m.UserId == userId);
+
+        if (member == null)
+            return new ErrorDataResult<MemberDetailDto>("Üyelik profili bulunamadı.");
+
+        // Artık Mapper tüm IdentityNumber, PhoneNumber ve MembershipType işlerini kendi hallediyor!
+        var detailDto = _mapper.Map<MemberDetailDto>(member);
+
+        return new SuccessDataResult<MemberDetailDto>(detailDto, "Güncel profil başarıyla getirildi.");
+    }
+
+
+
+
     /// private metotlar (Hiçbir değişiklik yok, kurgun zaten mükemmel)
     private IQueryable<Member> BuildListQuery(bool tracking)
     {

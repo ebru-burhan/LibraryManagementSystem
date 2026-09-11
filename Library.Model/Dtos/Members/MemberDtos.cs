@@ -1,4 +1,6 @@
-﻿namespace Library.Model.Dtos.Members;
+﻿using Library.Model.Dtos.Membership;
+
+namespace Library.Model.Dtos.Members;
 
 // 1. Temel Listeleme (Hafif Veri - Sadece Tabloda / Grid'de Gösterilecekler)
 // BaseExternalDto'dan miras aldığı için Guid ExternalId otomatik gelir.
@@ -7,7 +9,7 @@ public class MemberListDto : BaseExternalDto
     public string MemberNumber { get; set; } = null!;
     public string FullName { get; set; } = null!;
     public string Email { get; set; } = null!;
-    public string? Phone { get; set; }
+    public string? PhoneNumber { get; set; }
     public string Status { get; set; } = null!;
     public string StatusName { get; set; } = null!;
 }
@@ -20,6 +22,9 @@ public class MemberDetailDto : MemberListDto
     public string? Address { get; set; }
     public string? PictureUrl { get; set; } // bunu sanırım applicationdan alalım 
     public decimal UnpaidDebtAmount { get; set; }
+
+public string? IdentityNumber { get; set; }
+    public MembershipTypeDto? MembershipType { get; set; }
 
     // Üyenin alt koleksiyonları
     public List<MemberLoanDto> ActiveLoans { get; set; } = [];

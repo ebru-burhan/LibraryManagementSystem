@@ -9,7 +9,7 @@ const FILE_BASE = 'https://localhost:7213';
 
 export default function CatalogPage() {
   const navigate = useNavigate();
-  const { permissions } = useAuth();
+  const { permissions, isMember } = useAuth();
   const canManageCatalog = permissions.includes(PERMISSIONS.MANAGE_CATALOG);
 
   const [books, setBooks] = useState([]);
@@ -113,18 +113,29 @@ export default function CatalogPage() {
                       : 'Bilinmeyen Yazar'}
                   </p>
 
-                  {/* Rezervasyon / Durum Kontrolü */}
-                  {/* Backend'den gelen DTO'da 'availableCopiesCount' (veya isAvailable) olduğunu varsayıyoruz */}
+              {/* Butonlar ve Durum Kontrolü */}
                   <div className="book-actions">
+                    {/* İncele Butonu - Herkese Açık */}
+                    <button 
+                      className="btn-inspect"
+                      onClick={() => navigate(`/catalog/${book.id}`)}
+                    >
+                      İncele
+                    </button>
+
+                    {/* Stok Durumu ve Rezervasyon (Sadece Üyeler İçin) */}
                     {book.availableCopiesCount > 0 ? (
                       <span className="status-badge available">Rafta ({book.availableCopiesCount} Adet)</span>
                     ) : (
-                      <button 
-                        className="btn-reserve"
-                        onClick={() => handleReserve(book.id)}
-                      >
-                        Rezervasyon Yap
-                      </button>
+                      /* Stok yoksa ve SADECE isMember ise Rezervasyon Butonunu göster. Değilse hiçbir şey gösterme. */
+                      isMember && (
+                        <button 
+                          className="btn-reserve"
+                          onClick={() => handleReserve(book.id)}
+                        >
+                          Rezervasyon Yap
+                        </button>
+                      )
                     )}
                   </div>
                 </div>

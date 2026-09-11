@@ -20,6 +20,11 @@ import AddBookCopyPage from './pages/bookCopy/AddBookCopyPage';
 
 import ReservationListAdminPage from './pages/reservations/ReservationListAdminPage';
 import LostBookListAdminPage from './pages/lostBooks/LostBookListAdminPage';
+
+
+import MyLoansPage from './pages/myProfile/MyLoansPage';
+import MyPenaltiesPage from './pages/myProfile/MyPenaltiesPage';
+import MyReservationsPage from './pages/myProfile/MyReservationsPage';
 import { PERMISSIONS } from './auth/permissionKeys';
 
 export default function App() {
@@ -47,6 +52,38 @@ export default function App() {
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/membership-apply" element={<MembershipApplicationPage />} />
         
+
+    {/* === ÜYE (MEMBER) ROTALARI === */}
+        <Route
+          path="/my-loans"
+          element={
+            <AuthorizeRoute requiredPermission={PERMISSIONS.VIEW_MY_LOANS}>
+              <MyLoansPage />
+            </AuthorizeRoute>
+          }
+        />
+
+         <Route
+          path="/my-penalties"
+          element={
+            <AuthorizeRoute requiredPermission={PERMISSIONS.VIEW_MY_PENALTIES}>
+              <MyPenaltiesPage />
+            </AuthorizeRoute>
+          }
+        />
+
+        <Route
+          path="/my-reservations"
+          element={
+            <AuthorizeRoute requiredPermission={PERMISSIONS.VIEW_MY_RESERVATIONS}>
+              <MyReservationsPage />
+            </AuthorizeRoute>
+          }
+        />
+
+
+       
+
         {/* Katalog sayfası giriş yapan HERKESE açık */}
         <Route
           path="/catalog"

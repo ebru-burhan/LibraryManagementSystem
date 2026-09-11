@@ -88,4 +88,25 @@ public class MyProfileController : ControllerBase
 
         return BadRequest(result);
     }
+
+    [HttpGet("my-details")]
+    public async Task<IActionResult> GetMyDetails()
+    {
+        var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out int userId))
+        {
+            return Unauthorized(new { Message = "Güvenlik ihlali: Geçersiz kullanıcı kimliği." });
+        }
+
+        var result = await _memberService.GetMyProfileByUserIdAsync(userId);
+
+        if (result.Success)
+        {
+            return Ok(result);
+        }
+
+        return BadRequest(result);
+    }
+
 }
